@@ -1,0 +1,38 @@
+[
+    {
+        "ID" : 0,
+        "name": "CON",
+        "value": 13
+    },
+
+    {
+        "ID" : 1,
+        "name": "FOR",
+        "value": 8
+    },
+
+    {
+        "ID" : 2,
+        "name": "DEX",
+        "value": 13
+    },
+
+
+    {
+        "ID" : 3,
+        "name": "INT",
+        "value": 13
+    },
+
+    {
+        "ID" : 4,
+        "name": "SAG",
+        "value": 17
+    },
+
+    {
+        "ID" : 5,
+        "name": "CHA",
+        "value": 7
+    }
+]

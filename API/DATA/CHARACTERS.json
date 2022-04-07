@@ -1,0 +1,23 @@
+[
+    {
+        "ID": 0,
+        "firstname": "Rose",
+        "lastname": "Frosilaen",
+        "genre": "Femme",
+        "specie": "Humaine",
+        "class": "Prêtresse de l'Amour",
+        "alignment": "Loyal Bon",
+        "beliefs": "Amour",
+        "stats": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+        ],
+        "equipment": "- Arc (1d6 + 1)\n- 10 flèches\n- Bague aiguille à usage unique (1d2 + empoisonnement 1d10 par tour)",
+        "spells": "- Purification (à volonté) : purge 1d4 points de corruption à quelqu'un situé à 15 mètres ou moins\n- Reconstruction (5/jour) : soigne 1d10 pv à quelqu'un situé à 9 mètres ou moins\n- Passion destructrice (2/jour) : inflige 1d8 points de dégâts à quelqu'un situé à 15 mètres ou moins\n- Amour déchaîné (1/jour) : donne 1d10+4 points de vie temporaires à un allié situé à 9 mètres ou moins",
+        "image": "https://media.discordapp.net/attachments/909845915282595850/956286611958669392/Rose_head_only.png"
+    }
+]
