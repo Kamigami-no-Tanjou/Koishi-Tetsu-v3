@@ -45,7 +45,6 @@ with open("./DATA/SERVERS.json", "r") as rf:
 
 #request parser for a POST request on the user list :
 user_post_args = reqparse.RequestParser()
-user_post_args.add_argument("serverID", type=int, required=True)
 user_post_args.add_argument("ID", type=int, required=True)
 user_post_args.add_argument("characters", action='append')
 user_post_args.add_argument("muted", type=int)
@@ -55,7 +54,6 @@ user_post_args.add_argument("birthdate", type=str)
 
 #request parser for a PUT request on the user list :
 user_put_args = reqparse.RequestParser()
-user_put_args.add_argument("serverID", type=int)
 user_put_args.add_argument("ID", type=int)
 user_put_args.add_argument("characters", action='append')
 user_put_args.add_argument("muted", type=int)
@@ -148,3 +146,67 @@ stats_put_args.add_argument("value", type=int)
 #We create a list of stats and add the content of the ./DATA/STATS.json to it.
 with open("./DATA/STATS.json", "r") as rf:
 	stats = json.load(rf)
+
+#-------------------------------
+# Existence verification methods
+#-------------------------------
+
+#Aborts the extraction of a server's data if the server's ID isn't in the list.
+def abort_if_server_id_doesnt_exist(server_id):
+	if server_id not in servers["ID"]:
+		abort(404, message="Invalid server ID")
+
+#Aborts the insertion of a server's data if the server's ID already exists.
+def abort_if_server_id_already_exists(server_id):
+	if server_id in servers["ID"]:
+		abort(409, message="Server already in the list")
+
+#Aborts the extraction of a user's data if the user's ID isn't in the list.
+def abort_if_user_id_doesnt_exist(user_id):
+	if user_id not in users["ID"]:
+		abort(404, message="Invalid user ID")
+
+#Aborts the insertion of a user's data if the user's ID already exists.
+def abort_if_user_id_already_exists(user_id):
+	if user_id in users["ID"]:
+		abort(409, message="User already in the list")
+
+#Aborts the extraction of a reaction role's data if the reaction role's ID isn't in the list.
+def abort_if_reacrole_id_doesnt_exist(reacrole_id):
+	if reacrole_id not in reaction_roles["ID"]:
+		abort(404, message="Invalid reaction role ID")
+
+#Aborts the insertion of a reaction role's data if the reaction role's ID already exists.
+def abort_if_reacrole_id_already_exists(reacrole_id):
+	if reacrole_id in reaction_roles["ID"]:
+		abort(409, message="Reaction role already in the list")
+
+#Aborts the extraction of a command's data if the command's ID isn't in the list.
+def abort_if_command_id_doesnt_exist(command_id):
+	if command_id not in commands["ID"]:
+		abort(404, message="Invalid command ID")
+
+#Aborts the insertion of a command's data if the command's ID already exists.
+def abort_if_command_id_already_exists(command_id):
+	if command_id in commands["ID"]:
+		abort(409, messag="Command already in the list")
+
+#Abort the extraction of a character's data if the character's ID isn't in the list.
+def abort_if_character_id_doesnt_exist(char_id):
+	if char_id not in characters["ID"]:
+		abort(404, message="Invalid character ID")
+
+#Abort the insertion of a character's data if the character's ID already exists.
+def abort_if_character_id_already_exists(char_id):
+	if char_id in characters["ID"]:
+		abort(409, message="Character already in the list")
+
+#Abort the extraction of a stats' data if the stats' ID isn't in the list.
+def abort_if_stats_id_doesnt_exist(stats_id):
+	if stats_id not in stats["ID"]:
+		abort(404, message="Invalid stats ID")
+
+#Abort the insertion of a stats' data if the stats' ID already exists.
+def abort_if_stats_id_already_exists(stats_id):
+	if stats_id in stats["ID"]:
+		abort(409, message="Stats already in the list")
