@@ -1,3 +1,4 @@
+from xml.dom.pulldom import CHARACTERS
 from numpy import char
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort
@@ -8,6 +9,18 @@ app = Flask(__name__)
 api = Api(app)
 cors = CORS(app)
 
+#CONSTANTS :
+#-----------
+
+#Paths of the json files
+SERVERS = "./DATA/SERVERS.json"
+USERS = "./DATA/USERS.json"
+REACTION_ROLES = "./DATA/REACTIONROLES.json"
+COMMANDS = "./DATA/COMMANDS.json"
+CHARACTERS = "./DATA/CHARACTERS.json"
+STATS = "./DATA/STATS.json"
+
+
 #-----------------------------------------------------------------------------------------
 # We start by defining the request parsers for the different requests that needs one.
 # A request parser allows us to define the different attributes that we want in a request.
@@ -16,14 +29,14 @@ cors = CORS(app)
 #request parser for a POST request on the server list :
 serv_post_args = reqparse.RequestParser()
 serv_post_args.add_argument("ID", type=int, required=True)
-serv_post_args.add_argument("users", action='append', required=True)
-serv_post_args.add_argument("maxWarn", type=int, required=True)
-serv_post_args.add_argument("cooldown", type=int, required=True)
-serv_post_args.add_argument("banned", action='append')
-serv_post_args.add_argument("prefix", type=str, required=True)
-serv_post_args.add_argument("autoRoles", action='append')
-serv_post_args.add_argument("reactionRoles", action='append')
-serv_post_args.add_argument("customCommands", action='append')
+serv_post_args.add_argument("users", default=[], action='append')
+serv_post_args.add_argument("maxWarn", type=int, default=3)
+serv_post_args.add_argument("cooldown", type=int, default=150)
+serv_post_args.add_argument("banned", default=[], action='append')
+serv_post_args.add_argument("prefix", type=str, default='kt')
+serv_post_args.add_argument("autoRoles", default=[], action='append')
+serv_post_args.add_argument("reactionRoles", default=[], action='append')
+serv_post_args.add_argument("customCommands", default=[], action='append')
 
 #request paresr for a PUT request on the server list :
 serv_put_args = reqparse.RequestParser()
@@ -38,7 +51,7 @@ serv_put_args.add_argument("reactionRoles", action='append')
 serv_put_args.add_argument("customCommands", action='append')
 
 #We create a list of servers and add the content of the ./DATA/SERVERS.json to it.
-with open("./DATA/SERVERS.json", "r") as rf:
+with open(SERVERS, "r") as rf:
 	servers = json.load(rf) 
 
 #request parser for a POST request on the user list :
@@ -60,7 +73,7 @@ user_put_args.add_argument("exp", type=int)
 user_put_args.add_argument("birthdate", type=str)
 
 #We create a list of users and add the content of the ./DATA/USERS.json to it.
-with open("./DATA/USERS.json", "r") as rf:
+with open(USERS, "r") as rf:
 	users = json.load(rf)
 
 #request parser for a POST request on the reaction role list :
@@ -78,7 +91,7 @@ reacrole_put_args.add_argument("role", type=int)
 reacrole_put_args.add_argument("emote", type=str)
 
 #We create a list of reaction roles and add the content of the ./DATA/REACTIONROLES.json to it.
-with open("./DATA/REACTIONROLES.json", "r") as rf:
+with open(REACTION_ROLES, "r") as rf:
 	reaction_roles = json.load(rf)
 
 #request parser for a POST request on the command list :
@@ -92,7 +105,7 @@ commands_put_args.add_argument("ID", type=int)
 commands_put_args.add_argument("name", type=str)
 
 #We create a list of commands and add the content of the ./DATA/COMMANDS.json to it.
-with open("./DATA/COMMANDS.json", "r") as rf:
+with open(COMMANDS, "r") as rf:
 	commands = json.load(rf)
 
 #request parser for a POST request on the character list :
@@ -126,7 +139,7 @@ char_put_args.add_argument("spells", type=str)
 char_put_args.add_argument("image", type=str)
 
 #We create a list of characters and add the content of the ./DATA/CHARACTERS.json to it.
-with open("./DATA/CHARACTERS.json", "r") as rf:
+with open(CHARACTERS, "r") as rf:
 	characters = json.load(rf)
 
 #request parser for a POST request on the stats list :
@@ -142,7 +155,7 @@ stats_put_args.add_argument("name", type=str)
 stats_put_args.add_argument("value", type=int)
 
 #We create a list of stats and add the content of the ./DATA/STATS.json to it.
-with open("./DATA/STATS.json", "r") as rf:
+with open(STATS, "r") as rf:
 	stats = json.load(rf)
 
 #-------------------------------
@@ -151,63 +164,88 @@ with open("./DATA/STATS.json", "r") as rf:
 
 #Aborts the extraction of a server's data if the server's ID isn't in the list.
 def abort_if_server_id_doesnt_exist(server_id):
-	if server_id not in servers["ID"]:
-		abort(404, message="Invalid server ID")
+	for i in range(len(servers)):
+		if server_id == servers[i]["ID"]:
+			return #In that case the ID is found here, so there's no need to go and search for it any longer
+	
+	abort(404, message="Invalid server ID")
+			
 
 #Aborts the insertion of a server's data if the server's ID already exists.
 def abort_if_server_id_already_exists(server_id):
-	if server_id in servers["ID"]:
-		abort(409, message="Server already in the list")
+	for i in range(len(servers)):
+		if server_id == servers[i]["ID"]:
+			abort(409, message="Server already in the list")
 
 #Aborts the extraction of a user's data if the user's ID isn't in the list.
 def abort_if_user_id_doesnt_exist(user_id):
-	if user_id not in users["ID"]:
-		abort(404, message="Invalid user ID")
+	for i in range(len(users)):
+		if user_id == users[i]["ID"]:
+			return #In that case the ID is found here, so there's no need to go and search for it any longer
+	
+	abort(404, message="Invalid user ID")
 
 #Aborts the insertion of a user's data if the user's ID already exists.
 def abort_if_user_id_already_exists(user_id):
-	if user_id in users["ID"]:
-		abort(409, message="User already in the list")
+	for i in range(len(users)):
+		if user_id == users[i]["ID"]:
+			abort(409, message="User already in the list")
 
 #Aborts the extraction of a reaction role's data if the reaction role's ID isn't in the list.
 def abort_if_reacrole_id_doesnt_exist(reacrole_id):
-	if reacrole_id not in reaction_roles["ID"]:
-		abort(404, message="Invalid reaction role ID")
+	for i in range(len(reaction_roles)):
+		if reacrole_id == reaction_roles[i]["ID"]:
+			return #In that case the ID is found here, so there's no need to go and search for it any longer
+			
+	abort(404, message="Invalid reaction role ID")
 
 #Aborts the insertion of a reaction role's data if the reaction role's ID already exists.
 def abort_if_reacrole_id_already_exists(reacrole_id):
-	if reacrole_id in reaction_roles["ID"]:
-		abort(409, message="Reaction role already in the list")
+	for i in range(len(reaction_roles)):
+		if reacrole_id == reaction_roles[i]["ID"]:
+			abort(409, message="Reaction role already in the list")
 
 #Aborts the extraction of a command's data if the command's ID isn't in the list.
 def abort_if_command_id_doesnt_exist(command_id):
-	if command_id not in commands["ID"]:
-		abort(404, message="Invalid command ID")
+	for i in range(len(commands)):
+		if command_id == commands[i]["ID"]:
+			return #In that case the ID is found here, so there's no need to go and search for it any longer
+
+	abort(404, message="Invalid command ID")
 
 #Aborts the insertion of a command's data if the command's ID already exists.
 def abort_if_command_id_already_exists(command_id):
-	if command_id in commands["ID"]:
-		abort(409, messag="Command already in the list")
+	for i in range(len(commands)):
+		if command_id in commands[i]["ID"]:
+			abort(409, messag="Command already in the list")
 
 #Abort the extraction of a character's data if the character's ID isn't in the list.
 def abort_if_character_id_doesnt_exist(char_id):
-	if char_id not in characters["ID"]:
-		abort(404, message="Invalid character ID")
+	for i in range(len(characters)):
+		if char_id == characters[i]["ID"]:
+			return #In that case the ID is found here, so there's no need to go and search for it any longer
+	
+	abort(404, message="Invalid character ID")
 
 #Abort the insertion of a character's data if the character's ID already exists.
 def abort_if_character_id_already_exists(char_id):
-	if char_id in characters["ID"]:
-		abort(409, message="Character already in the list")
+	for i in range(len(characters)):
+		if char_id == characters[i]["ID"]:
+			abort(409, message="Character already in the list")
 
 #Abort the extraction of a stats' data if the stats' ID isn't in the list.
 def abort_if_stats_id_doesnt_exist(stats_id):
-	if stats_id not in stats["ID"]:
-		abort(404, message="Invalid stats ID")
+	for i in range(len(stats)):
+		if stats_id == stats[i]["ID"]:
+			return #In that case the ID is found here, so there's no need to go and search for it any longer
+	
+	abort(404, message="Invalid stats ID")
 
 #Abort the insertion of a stats' data if the stats' ID already exists.
 def abort_if_stats_id_already_exists(stats_id):
-	if stats_id in stats["ID"]:
-		abort(409, message="Stats already in the list")
+	for i in range(len(stats)):
+		if stats_id == stats[i]["ID"]:
+			abort(409, message="Stats already in the list")
 
 #-----------------------------------
 # Controllers to handle the requests
@@ -221,7 +259,28 @@ def abort_if_stats_id_already_exists(stats_id):
 #we will consider removing it from the API!!
 class Servers(Resource) :
 	def get(self) :
-		return servers
+		return servers, 200
+
+	def post(self) :
+		#We check that the args of the POST request matches the request parser created above
+		args = serv_post_args.parse_args()
+
+		#Cancel the request if the server already exists in the list
+		abort_if_server_id_already_exists(args["ID"])
+		servers.append(args)
+
+		#We re-write the whole JSON file to store the current data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(SERVERS, "w") as f:
+			json.dump(servers, f)
+
+		#Finally, we return the amount of servers in the list, along with a 201 HTTP code.
+		#The return could be changed to anything, it is just indicative. I'll see later in
+		#the development if I need it to return a particular kind of data.
+		return len(servers), 201
 
 api.add_resource(Servers, "/servers")
 
