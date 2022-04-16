@@ -1,9 +1,7 @@
-from typing_extensions import Required
-
 from numpy import char
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort
-from falsk_cors import CORS
+from flask_cors import CORS
 import json
 
 app = Flask(__name__)
@@ -138,7 +136,7 @@ stats_post_args.add_argument("name", type=str, required=True)
 stats_post_args.add_argument("value", type=int, required=True)
 
 #request parser for a PUT request on the stats list :
-stats_put_args = reqparse.RequestPArser()
+stats_put_args = reqparse.RequestParser()
 stats_put_args.add_argument("ID", type=int)
 stats_put_args.add_argument("name", type=str)
 stats_put_args.add_argument("value", type=int)
@@ -245,11 +243,15 @@ class ReactionRoles(Resource) :
 	def get(self) :
 		return reaction_roles
 
+api.add_resource(ReactionRoles, "/reaction_roles")
+
 #We define the controller for a request GET at the address /commands
 #It will return the whole list of commands.
 class Commands(Resource) :
 	def get(self) :
 		return commands
+
+api.add_resource(Commands, "/commands")
 
 #We define the controller for a request GET at the address /characters
 #It will return the whole list of characters.
@@ -257,8 +259,15 @@ class Characters(Resource) :
 	def get(self) :
 		return characters
 
+api.add_resource(Characters, "/characters")
+
 #We define the controller for a request GET at the address /stats
 #It will return the whole list of stats.
 class Stats(Resource) :
 	def get(self) :
 		return stats
+
+api.add_resource(Stats, "/stats")
+
+if __name__ == "__main__" :
+	app.run(debug = True)
