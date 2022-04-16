@@ -210,3 +210,55 @@ def abort_if_stats_id_doesnt_exist(stats_id):
 def abort_if_stats_id_already_exists(stats_id):
 	if stats_id in stats["ID"]:
 		abort(409, message="Stats already in the list")
+
+#-----------------------------------
+# Controllers to handle the requests
+#-----------------------------------
+
+#We define the controller for a request GET at the address /servers
+#It will return the whole list of servers it has access to.
+#-------
+# NOTE :
+#This request is dangerous in terms of privacy, so if it is not needed,
+#we will consider removing it from the API!!
+class Servers(Resource) :
+	def get(self) :
+		return servers
+
+api.add_resource(Servers, "/servers")
+
+#We define the controller for a request GET at the address /users
+#It will return the whole list of users it knows.
+#-------
+# NOTE :
+#This request is dangerous in terms of privacy, so if it is not needed,
+#we will consider removing it from the API!!
+class Users(Resource) :
+	def get(self) :
+		return users
+
+api.add_resource(Users, "/users")
+
+#We define the controller for a request GET at the address /reaction_role
+#It will return the whole list of reaction roles.
+class ReactionRoles(Resource) :
+	def get(self) :
+		return reaction_roles
+
+#We define the controller for a request GET at the address /commands
+#It will return the whole list of commands.
+class Commands(Resource) :
+	def get(self) :
+		return commands
+
+#We define the controller for a request GET at the address /characters
+#It will return the whole list of characters.
+class Characters(Resource) :
+	def get(self) :
+		return characters
+
+#We define the controller for a request GET at the address /stats
+#It will return the whole list of stats.
+class Stats(Resource) :
+	def get(self) :
+		return stats
