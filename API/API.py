@@ -40,7 +40,6 @@ serv_post_args.add_argument("customCommands", default=[], action='append')
 
 #request paresr for a PUT request on the server list :
 serv_put_args = reqparse.RequestParser()
-serv_put_args.add_argument("ID", type=int)
 serv_put_args.add_argument("users", action='append')
 serv_put_args.add_argument("maxWarn", type=int)
 serv_put_args.add_argument("cooldown", type=int)
@@ -166,7 +165,9 @@ with open(STATS, "r") as rf:
 def abort_if_server_id_doesnt_exist(server_id):
 	for i in range(len(servers)):
 		if server_id == servers[i]["ID"]:
-			return #In that case the ID is found here, so there's no need to go and search for it any longer
+			#In that case the ID is found here, so there's no need to go and search for it any longer.
+			#Still we return the index, so we don't have to search the whole list once again.
+			return i
 	
 	abort(404, message="Invalid server ID")
 			
@@ -251,16 +252,10 @@ def abort_if_stats_id_already_exists(stats_id):
 # Controllers to handle the requests
 #-----------------------------------
 
-#We define the controller for a request GET at the address /servers
-#It will return the whole list of servers it has access to.
-#-------
-# NOTE :
-#This request is dangerous in terms of privacy, so if it is not needed,
-#we will consider removing it from the API!!
+#We define the controller for a request POST at the address /servers
+#It will allow the creation of new servers, which will automatically
+#be done by the bot itself, when he joins a new server
 class Servers(Resource) :
-	def get(self) :
-		return servers, 200
-
 	def post(self) :
 		#We check that the args of the POST request matches the request parser created above
 		args = serv_post_args.parse_args()
@@ -283,6 +278,71 @@ class Servers(Resource) :
 		return len(servers), 201
 
 api.add_resource(Servers, "/servers")
+
+#We define the controller for GET, PUT and DELETE resquests, at the
+#address /server/<int:server_id>. The server ID will be the one provided
+#by discord itself.
+#It will allow the modification of a server (when you wanna change the
+#prefix for instance), its deletion (when the bot leaves a server) and
+#the data retrieval.
+#-------
+# NOTE :
+#The GET method will return the whole JSON part of a server. It might be
+#a bit bothering for data retrieval since the bot will be made in Java
+#and Java doesn't read Json natively. I might consider developping other
+#controllers that will only return the desired value in the future.
+class Server(Resource) :
+	def get(self, server_id) :
+		#We cancel the request if the server ID requested is not in the list.
+		#On the other hand, if the server is effectively in the list, we get its index back.
+		i = abort_if_server_id_doesnt_exist(server_id)
+
+		#Then we return the JSON part for this exact server, along with a 200 HTTP code.
+		return servers[i], 200
+
+	def put(self, server_id) :
+		#We cancel the request directly if the server isn't in the list. That will ensure we do
+		#not consume operations to verify the request's correctness if it can only end aborted.
+		#On the other hand, if the server is effectively in the list, we get its index back.
+		i = abort_if_server_id_doesnt_exist(server_id)
+
+		#Then we verirfy the args of the PUT method, to ensure they respect the parser defined
+		#above, and we parse them if they do.
+		args = serv_put_args.parse_args()
+
+		#Here we look at which args have been edited, and we change their value in the server.
+		edit_server(i, args)
+
+		#We re-write the whole JSON file to store the freshly edited data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(SERVERS, "w") as f :
+			json.dump(servers, f)
+
+		#Finally, we return the server modified, along with a 200 HTTP code.
+		return servers[i], 200
+
+	def delete(self, server_id) :
+		#Same as the put request, if the server isn't found in the list, we abort directly the
+		#operation.
+		#Otherwise we get the index of the server and delete it from the list.
+		i = abort_if_server_id_doesnt_exist(server_id)
+		del servers[i]
+
+		#We re-write the whole JSON file once again to delete the server's data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(SERVERS, "w") as f :
+			json.dump(servers, f)
+
+		#Finally, we return the new length of the list, along with a 200 HTTP code.
+		return len(servers), 200
+
+api.add_resource(Server, "/server/<int:server_id>")
 
 #We define the controller for a request GET at the address /users
 #It will return the whole list of users it knows.
@@ -330,3 +390,48 @@ api.add_resource(Stats, "/stats")
 
 if __name__ == "__main__" :
 	app.run(debug = True)
+
+#----------------
+# Editing methods
+#----------------
+
+#This method is pretty much here because I thought it would be ugly to leave an
+#endless list of 'if' in the Server put method.
+#At the moment, I can't think of a real better way to do that, but it might be solved
+#in the near future, via an HTTP request that will allow the modification of only one
+#parameter. This way we will only have to create a switch/case to check which parameter
+#needs to be modified, and we won't have to deal with JSON parsing in Java anymore.
+#I'm also very likely to create methods that will edit several predefined parameters
+#at once, as it would reduce the amount of simultaneous requests to the API. 
+def edit_server(i, args) :
+	#if there is a value in the users field
+	if args["users"] != None :
+		servers[i]["users"].append(args["users"]) #Not sure about that syntax!!
+
+	#if there is a value in the maxWarn field
+	if args["maxWarn"] != None : 
+		servers[i]["maxWarn"] = args["maxWarn"]
+
+	#if there is a value in the cooldown field
+	if args["cooldown"] != None :
+		servers[i]["cooldown"] = args["cooldown"]
+
+	#if there is a value in the banned field
+	if args["banned"] != None :
+		servers[i]["banned"].append(args["banned"]) #Not sure about that syntax!!
+
+	#if there is a value in the prefix field
+	if args["prefix"] != None :
+		servers[i]["prefix"] = args["prefix"]
+	
+	#if there is a value in the autoRoles field
+	if args["autoRoles"] != None :
+		servers[i]["autoRoles"].append(args["autoRoles"]) #Not sure about that syntax!!
+
+	#if there is a value in the reactionRoles field
+	if args["reactionRoles"] != None :
+		servers[i]["reactionRoles"].append(args["reactionRoles"]) #Not sure about that syntax!!
+	
+	#if there is a value in the customCommands field
+	if args["customCommands"] != None :
+		servers[i]["customCommands"].append(args["customCommands"]) #Not sure about that syntax!!
