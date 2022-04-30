@@ -29,25 +29,25 @@ STATS = "./DATA/STATS.json"
 #request parser for a POST request on the server list :
 serv_post_args = reqparse.RequestParser()
 serv_post_args.add_argument("ID", type=int, required=True)
-serv_post_args.add_argument("users", default=[], action='append')
+serv_post_args.add_argument("users", type = int, default=[], action='append')
 serv_post_args.add_argument("maxWarn", type=int, default=3)
 serv_post_args.add_argument("cooldown", type=int, default=150)
-serv_post_args.add_argument("banned", default=[], action='append')
+serv_post_args.add_argument("banned", type=int, default=[], action='append')
 serv_post_args.add_argument("prefix", type=str, default='kt')
-serv_post_args.add_argument("autoRoles", default=[], action='append')
-serv_post_args.add_argument("reactionRoles", default=[], action='append')
-serv_post_args.add_argument("customCommands", default=[], action='append')
+serv_post_args.add_argument("autoRoles", type=int, default=[], action='append')
+serv_post_args.add_argument("reactionRoles", type=int, default=[], action='append')
+serv_post_args.add_argument("customCommands", type=int, default=[], action='append')
 
 #request paresr for a PUT request on the server list :
 serv_put_args = reqparse.RequestParser()
-serv_put_args.add_argument("users", action='append')
+serv_put_args.add_argument("users", type=int, action='append')
 serv_put_args.add_argument("maxWarn", type=int)
 serv_put_args.add_argument("cooldown", type=int)
-serv_put_args.add_argument("banned", action='append')
+serv_put_args.add_argument("banned", type=int, action='append')
 serv_put_args.add_argument("prefix", type=str)
-serv_put_args.add_argument("autoRoles", action='append')
-serv_put_args.add_argument("reactionRoles", action='append')
-serv_put_args.add_argument("customCommands", action='append')
+serv_put_args.add_argument("autoRoles", type=int, action='append')
+serv_put_args.add_argument("reactionRoles", type=int, action='append')
+serv_put_args.add_argument("customCommands", type=int, action='append')
 
 #We create a list of servers and add the content of the ./DATA/SERVERS.json to it.
 with open(SERVERS, "r") as rf:
@@ -64,7 +64,6 @@ user_post_args.add_argument("birthdate", type=str)
 
 #request parser for a PUT request on the user list :
 user_put_args = reqparse.RequestParser()
-user_put_args.add_argument("ID", type=int)
 user_put_args.add_argument("characters", action='append')
 user_put_args.add_argument("muted", type=int)
 user_put_args.add_argument("warnings", type=int)
@@ -248,6 +247,51 @@ def abort_if_stats_id_already_exists(stats_id):
 		if stats_id == stats[i]["ID"]:
 			abort(409, message="Stats already in the list")
 
+#----------------
+# Editing methods
+#----------------
+
+#This method is pretty much here because I thought it would be ugly to leave an
+#endless list of 'if' in the Server put method.
+#At the moment, I can't think of a real better way to do that, but it might be solved
+#in the near future, via an HTTP request that will allow the modification of only one
+#parameter. This way we will only have to create a switch/case to check which parameter
+#needs to be modified, and we won't have to deal with JSON parsing in Java anymore.
+#I'm also very likely to create methods that will edit several predefined parameters
+#at once, as it would reduce the amount of simultaneous requests to the API. 
+def edit_server(i, args) :
+	#if there is a value in the users field
+	if args["users"] != None :
+		servers[i]["users"].append(args["users"]) #Not sure about that syntax!!
+
+	#if there is a value in the maxWarn field
+	if args["maxWarn"] != None : 
+		servers[i]["maxWarn"] = args["maxWarn"]
+
+	#if there is a value in the cooldown field
+	if args["cooldown"] != None :
+		servers[i]["cooldown"] = args["cooldown"]
+
+	#if there is a value in the banned field
+	if args["banned"] != None :
+		servers[i]["banned"].append(args["banned"]) #Not sure about that syntax!!
+
+	#if there is a value in the prefix field
+	if args["prefix"] != None :
+		servers[i]["prefix"] = args["prefix"]
+	
+	#if there is a value in the autoRoles field
+	if args["autoRoles"] != None :
+		servers[i]["autoRoles"].append(args["autoRoles"]) #Not sure about that syntax!!
+
+	#if there is a value in the reactionRoles field
+	if args["reactionRoles"] != None :
+		servers[i]["reactionRoles"].append(args["reactionRoles"]) #Not sure about that syntax!!
+	
+	#if there is a value in the customCommands field
+	if args["customCommands"] != None :
+		servers[i]["customCommands"].append(args["customCommands"]) #Not sure about that syntax!!
+
 #-----------------------------------
 # Controllers to handle the requests
 #-----------------------------------
@@ -390,48 +434,3 @@ api.add_resource(Stats, "/stats")
 
 if __name__ == "__main__" :
 	app.run(debug = True)
-
-#----------------
-# Editing methods
-#----------------
-
-#This method is pretty much here because I thought it would be ugly to leave an
-#endless list of 'if' in the Server put method.
-#At the moment, I can't think of a real better way to do that, but it might be solved
-#in the near future, via an HTTP request that will allow the modification of only one
-#parameter. This way we will only have to create a switch/case to check which parameter
-#needs to be modified, and we won't have to deal with JSON parsing in Java anymore.
-#I'm also very likely to create methods that will edit several predefined parameters
-#at once, as it would reduce the amount of simultaneous requests to the API. 
-def edit_server(i, args) :
-	#if there is a value in the users field
-	if args["users"] != None :
-		servers[i]["users"].append(args["users"]) #Not sure about that syntax!!
-
-	#if there is a value in the maxWarn field
-	if args["maxWarn"] != None : 
-		servers[i]["maxWarn"] = args["maxWarn"]
-
-	#if there is a value in the cooldown field
-	if args["cooldown"] != None :
-		servers[i]["cooldown"] = args["cooldown"]
-
-	#if there is a value in the banned field
-	if args["banned"] != None :
-		servers[i]["banned"].append(args["banned"]) #Not sure about that syntax!!
-
-	#if there is a value in the prefix field
-	if args["prefix"] != None :
-		servers[i]["prefix"] = args["prefix"]
-	
-	#if there is a value in the autoRoles field
-	if args["autoRoles"] != None :
-		servers[i]["autoRoles"].append(args["autoRoles"]) #Not sure about that syntax!!
-
-	#if there is a value in the reactionRoles field
-	if args["reactionRoles"] != None :
-		servers[i]["reactionRoles"].append(args["reactionRoles"]) #Not sure about that syntax!!
-	
-	#if there is a value in the customCommands field
-	if args["customCommands"] != None :
-		servers[i]["customCommands"].append(args["customCommands"]) #Not sure about that syntax!!
