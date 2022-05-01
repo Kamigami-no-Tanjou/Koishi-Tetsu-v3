@@ -351,6 +351,27 @@ def edit_user(i, args) :
 	if args["birthdate"] != None :
 		users[i]["birthdate"] = args["birthdate"]
 
+#This method is pretty much here because I thought it would be ugly to leave an
+#endless list of 'if' in the ReactionRole put method.
+#At the moment, I can't think of a real better way to do that, but it might be solved
+#in the near future, via an HTTP request that will allow the modification of only one
+#parameter. This way we will only have to create a switch/case to check which parameter
+#needs to be modified, and we won't have to deal with JSON parsing in Java anymore.
+#I'm also very likely to create methods that will edit several predefined parameters
+#at once, as it would reduce the amount of simultaneous requests to the API. 
+def edit_reacrole(i, args) :
+	#if there is a value in the message field
+	if args["message"] != None :
+		reaction_roles[i]["message"] = args["message"]
+
+	#if there is a value in the role field
+	if args["role"] != None :
+		reaction_roles[i]["role"] = args["role"]
+
+	#if there is a value in the emote field
+	if args["emote"] != None : 
+		reaction_roles[i]["emote"] = args["emote"]
+
 #-----------------------------------
 # Controllers to handle the requests
 #-----------------------------------
@@ -546,7 +567,97 @@ class ReactionRoles(Resource) :
 	def get(self) :
 		return reaction_roles
 
+	def post(self) :
+		#We check that the args of the POST request matches the request parser created above
+		args = reacrole_post_args.parse_args()
+
+		#Cancel the request if the reaction role already exists in the list
+		abort_if_reacrole_id_already_exists(args["ID"])
+		reaction_roles.append(args)
+
+		#We re-write the whole JSON file to store the current data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(REACTION_ROLES, "w") as f:
+			json.dump(reaction_roles, f)
+
+		#Finally, we return the amount of reaction roles in the list, along with a 201 HTTP
+		#code.
+		#The return could be changed to anything, it is just indicative. I'll see later in
+		#the development if I need it to return a particular kind of data.
+		return len(reaction_roles), 201
+
 api.add_resource(ReactionRoles, "/reaction_roles")
+
+#We define the controller for GET, PUT and DELETE resquests, at the
+#address /reaction_role/<int:reacrole_id>. The reaction role ID will
+#be arbitrarily provided by the API itself.
+#It will allow the modification of a reaction role (when you change
+#the emote for instance), its deletion and the data retrieval.
+#-------
+# NOTE :
+#The GET method will return the whole JSON part of a reaction role. It 
+#might be a bit bothering for data retrieval since the bot will be made
+#in Java and Java doesn't read Json natively. I might consider developping
+#other controllers that will only return the desired value in the future.
+class ReactionRole(Resource) :
+	def get(self, reacrole_id) :
+		#We cancel the request if the reaction role ID requested is not in the list.
+		#On the other hand, if the reaction role is effectively in the list, we get
+		#its index back.
+		i = abort_if_reacrole_id_doesnt_exist(reacrole_id)
+
+		#Then we return the JSON part for this exact reaction role, along with a 200 HTTP code.
+		return reaction_roles[i], 200
+
+	def put(self, reacrole_id) :
+		#We cancel the request directly if the reaction role isn't in the list. That will ensure
+		#we do not consume operations to verify the request's correctness if it can only end
+		#aborted.
+		#On the other hand, if the reaction role is effectively in the list, we get its index
+		#back.
+		i = abort_if_reacrole_id_doesnt_exist(reacrole_id)
+
+		#Then we verirfy the args of the PUT method, to ensure they respect the parser defined
+		#above, and we parse them if they do.
+		args = reacrole_put_args.parse_args()
+
+		#Here we look at which args have been edited, and we change their value in the reaction
+		#role.
+		edit_reacrole(i, args)
+
+		#We re-write the whole JSON file to store the freshly edited data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(REACTION_ROLES, "w") as f :
+			json.dump(reaction_roles, f)
+
+		#Finally, we return the reaction role modified, along with a 200 HTTP code.
+		return reaction_roles[i], 200
+
+	def delete(self, reacrole_id) :
+		#Same as the put request, if the reaction role isn't found in the list, we abort
+		#directly the operation.
+		#Otherwise we get the index of the reaction role and delete it from the list.
+		i = abort_if_reacrole_id_doesnt_exist(reacrole_id)
+		del reaction_roles[i]
+
+		#We re-write the whole JSON file once again to delete the user's data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(REACTION_ROLES, "w") as f :
+			json.dump(reaction_roles, f)
+
+		#Finally, we return the new length of the list, along with a 200 HTTP code.
+		return len(reaction_roles), 200
+
+api.add_resource(ReactionRole, "/reaction_role/<int:reacrole_id>")
 
 #We define the controller for a request GET at the address /commands
 #It will return the whole list of commands.

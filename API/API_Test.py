@@ -85,3 +85,39 @@ print(response.json())
 print()
 input("Go to : " + API + "user/523804235217895430 to see the changes, then press enter.")
 print()
+
+#POST request for a reaction role :
+print("POST request for a reaction role :")
+response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+print(response.json())
+
+print()
+input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+print()
+
+#PUT request for a reaction role :
+print("PUT request for a reaction role :")
+response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
+print(response.json())
+
+print()
+input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+print()
+
+#GET request for a user :
+print("GET request for a reaction role :")
+response = get(API + "reaction_role/0")
+print(response.json())
+
+print()
+input("Press Enter to continue...")
+print()
+
+#DELETE request for a user :
+print("DELETE request for a user :")
+response = delete(API + "reaction_role/1")
+print(response.json())
+
+print()
+input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
+print()
