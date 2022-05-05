@@ -19,8 +19,8 @@ def main():
     #test_users()
     #test_reaction_roles()
     #test_commands()
-    test_characters()
-    #test_stats()
+    #test_characters()
+    test_stats()
     #test_warnings()
 
 def test_servers():
@@ -209,40 +209,40 @@ def test_characters():
     print()
 
 def test_stats():
-    #POST request for a reaction role :
-    print("POST request for a reaction role :")
-    response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+    #POST request for a stat :
+    print("POST request for a stat :")
+    response = post(API + "stats", json={"ID" : 6, "name" : "test", "value" : 0})
     print(response.json())
 
     print()
-    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    input("Go to : " + API + "stat/6 to see the changes, then press enter.")
     print()
 
-    #PUT request for a reaction role :
-    print("PUT request for a reaction role :")
-    response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
+    #PUT request for a stat :
+    print("PUT request for a stat :")
+    response = put(API + "stat/6", json={"name" : "not a test anymore", "value" : 999999999999999999})
     print(response.json())
 
     print()
-    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    input("Go to : " + API + "stat/6 to see the changes, then press enter.")
     print()
 
-    #GET request for a user :
-    print("GET request for a reaction role :")
-    response = get(API + "reaction_role/0")
+    #GET request for a stat :
+    print("GET request for a stat :")
+    response = get(API + "stat/0")
     print(response.json())
 
     print()
     input("Press Enter to continue...")
     print()
 
-    #DELETE request for a user :
-    print("DELETE request for a user :")
-    response = delete(API + "reaction_role/1")
+    #DELETE request for a stat :
+    print("DELETE request for a stat :")
+    response = delete(API + "stat/6")
     print(response.json())
 
     print()
-    input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
+    input("Go to : " + API + "stats to see the changes, then press enter.")
     print()
 
 def test_warnings():

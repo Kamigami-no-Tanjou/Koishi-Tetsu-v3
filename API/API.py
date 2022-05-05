@@ -451,6 +451,23 @@ def edit_character(i, args) :
 	if args["image"] != None :
 		characters[i]["image"] = args["image"]
 
+#This method is pretty much here because I thought it would be ugly to leave an
+#endless list of 'if' in the Stat put method.
+#At the moment, I can't think of a real better way to do that, but it might be solved
+#in the near future, via an HTTP request that will allow the modification of only one
+#parameter. This way we will only have to create a switch/case to check which parameter
+#needs to be modified, and we won't have to deal with JSON parsing in Java anymore.
+#I'm also very likely to create methods that will edit several predefined parameters
+#at once, as it would reduce the amount of simultaneous requests to the API. 
+def edit_stat(i, args) :
+	#if there is a value in the name field
+	if args["name"] != None :
+		stats[i]["name"] = args["name"]
+
+	#if there is a value in the value field
+	if args["value"] != None : 
+		stats[i]["value"] = args["value"]
+
 #-----------------------------------
 # Controllers to handle the requests
 #-----------------------------------
@@ -727,7 +744,7 @@ class ReactionRole(Resource) :
 		i = abort_if_reacrole_id_doesnt_exist(reacrole_id)
 		del reaction_roles[i]
 
-		#We re-write the whole JSON file once again to delete the user's data
+		#We re-write the whole JSON file once again to delete the reaction role's data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
 		#one or two servers, it is not a real problem. However, if the amount of servers it
 		#gets to be on increases a lot, I will have to consider changing the export of data
@@ -823,7 +840,7 @@ class Command(Resource) :
 		i = abort_if_command_id_doesnt_exist(command_id)
 		del commands[i]
 
-		#We re-write the whole JSON file once again to delete the user's data
+		#We re-write the whole JSON file once again to delete the command's data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
 		#one or two servers, it is not a real problem. However, if the amount of servers it
 		#gets to be on increases a lot, I will have to consider changing the export of data
@@ -919,7 +936,7 @@ class Character(Resource) :
 		i = abort_if_character_id_doesnt_exist(character_id)
 		del characters[i]
 
-		#We re-write the whole JSON file once again to delete the user's data
+		#We re-write the whole JSON file once again to delete the character's data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
 		#one or two servers, it is not a real problem. However, if the amount of servers it
 		#gets to be on increases a lot, I will have to consider changing the export of data
@@ -932,13 +949,100 @@ class Character(Resource) :
 
 api.add_resource(Character, "/character/<int:character_id>")
 
-#We define the controller for a request GET at the address /stats
-#It will return the whole list of stats.
+#We define the controller for POST and GET requests at the address /stats
+#It will allow the creation of new stats and return the whole list of stats.
 class Stats(Resource) :
 	def get(self) :
 		return stats
 
+	def post(self) :
+		#We check that the args of the POST request matches the request parser created above
+		args = stats_post_args.parse_args()
+
+		#Cancel the request if the stat already exists in the list
+		abort_if_stats_id_already_exists(args["ID"])
+		stats.append(args)
+
+		#We re-write the whole JSON file to store the current data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(STATS, "w") as f:
+			json.dump(stats, f)
+
+		#Finally, we return the amount of stats in the list, along with a 201 HTTP code.
+		#The return could be changed to anything, it is just indicative. I'll see later in
+		#the development if I need it to return a particular kind of data.
+		return len(stats), 201
+
 api.add_resource(Stats, "/stats")
+
+#We define the controller for GET, PUT and DELETE resquests, at the address
+#/stat/<int:stat_id>. The command ID will be arbitrarily provided by the API
+#itself.
+#It will allow the modification of a character's stat, its deletion and the
+#data retrieval.
+#-------
+# NOTE :
+#The GET method will return the whole JSON part of a stat. It might be
+#a bit bothering for data retrieval since the bot will be made in Java
+#and Java doesn't read Json natively. I might consider developping other
+#controllers that will only return the desired value in the future.
+class Stat(Resource) :
+	def get(self, stat_id) :
+		#We cancel the request if the stat ID requested is not in the list.
+		#On the other hand, if the stat is effectively in the list, we get its
+		#index back.
+		i = abort_if_stats_id_doesnt_exist(stat_id)
+
+		#Then we return the JSON part for this exact stat, along with a 200 HTTP code.
+		return stats[i], 200
+
+	def put(self, stat_id) :
+		#We cancel the request directly if the stat isn't in the list. That will ensure we
+		#do not consume operations to verify the request's correctness if it can only end
+		#aborted.
+		#On the other hand, if the stat is effectively in the list, we get its index back.
+		i = abort_if_stats_id_doesnt_exist(stat_id)
+
+		#Then we verirfy the args of the PUT method, to ensure they respect the parser defined
+		#above, and we parse them if they do.
+		args = stats_put_args.parse_args()
+
+		#Here we look at which args have been edited, and we change their value in the character
+		edit_stat(i, args)
+
+		#We re-write the whole JSON file to store the freshly edited data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(STATS, "w") as f :
+			json.dump(stats, f)
+
+		#Finally, we return the stat modified, along with a 200 HTTP code.
+		return stats[i], 200
+
+	def delete(self, stat_id) :
+		#Same as the put request, if the stat isn't found in the list, we abort directly
+		#the operation.
+		#Otherwise we get the index of the stat and delete it from the list.
+		i = abort_if_stats_id_doesnt_exist(stat_id)
+		del stats[i]
+
+		#We re-write the whole JSON file once again to delete the stat's data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(STATS, "w") as f :
+			json.dump(stats, f)
+
+		#Finally, we return the new length of the list, along with a 200 HTTP code.
+		return len(stats), 200
+
+api.add_resource(Stat, "/stat/<int:stat_id>")
 
 #We define the controller for a request GET at the address /warnings
 #It will return the whole list of warnings.
