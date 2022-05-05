@@ -301,7 +301,7 @@ def abort_if_warning_id_already_exists(warning_id):
 def edit_server(i, args) :
 	#if there is a value in the mutedUsers field
 	if args["mutedUsers"] != None :
-		servers[i]["mutedUsers"].append(args["mutedUsers"])
+		servers[i]["mutedUsers"].extend(args["mutedUsers"])
 
 	#if there is a value in the mutedRole field
 	if args["mutedRole"] != None :
@@ -317,7 +317,7 @@ def edit_server(i, args) :
 
 	#if there is a value in the banned field
 	if args["banned"] != None :
-		servers[i]["banned"].append(args["banned"])
+		servers[i]["banned"].extend(args["banned"])
 
 	#if there is a value in the prefix field
 	if args["prefix"] != None :
@@ -325,15 +325,15 @@ def edit_server(i, args) :
 	
 	#if there is a value in the autoRoles field
 	if args["autoRoles"] != None :
-		servers[i]["autoRoles"].append(args["autoRoles"])
+		servers[i]["autoRoles"].extend(args["autoRoles"])
 
 	#if there is a value in the reactionRoles field
 	if args["reactionRoles"] != None :
-		servers[i]["reactionRoles"].append(args["reactionRoles"])
+		servers[i]["reactionRoles"].extend(args["reactionRoles"])
 	
 	#if there is a value in the customCommands field
 	if args["customCommands"] != None :
-		servers[i]["customCommands"].append(args["customCommands"])
+		servers[i]["customCommands"].extend(args["customCommands"])
 
 #This method is pretty much here because I thought it would be ugly to leave an
 #endless list of 'if' in the User put method.
@@ -346,11 +346,11 @@ def edit_server(i, args) :
 def edit_user(i, args) :
 	#if there is a value in the servers field
 	if args["servers"] != None :
-		users[i]["servers"].append(args["servers"])
+		users[i]["servers"].extend(args["servers"])
 
 	#if there is a value in the characters field
 	if args["characters"] != None :
-		users[i]["characters"].append(args["characters"])
+		users[i]["characters"].extend(args["characters"])
 
 	#if there is a value in the exp field
 	if args["exp"] != None : 
@@ -397,6 +397,59 @@ def edit_command(i, args) :
 	#if there is a value in the output field
 	if args["output"] != None : 
 		commands[i]["output"] = args["output"]
+
+#This method is pretty much here because I thought it would be ugly to leave an
+#endless list of 'if' in the Character put method.
+#At the moment, I can't think of a real better way to do that, but it might be solved
+#in the near future, via an HTTP request that will allow the modification of only one
+#parameter. This way we will only have to create a switch/case to check which parameter
+#needs to be modified, and we won't have to deal with JSON parsing in Java anymore.
+#I'm also very likely to create methods that will edit several predefined parameters
+#at once, as it would reduce the amount of simultaneous requests to the API. 
+def edit_character(i, args) :
+	#if there is a value in the firstname field
+	if args["firstname"] != None :
+		characters[i]["firstname"] = args["firstname"]
+
+	#if there is a value in the lastname field
+	if args["lastname"] != None : 
+		characters[i]["lastname"] = args["lastname"]
+
+	#if there is a value in the genre field
+	if args["genre"] != None :
+		characters[i]["genre"] = args["genre"]
+
+	#if there is a value in the specie field
+	if args["specie"] != None :
+		characters[i]["specie"] = args["specie"]
+
+	#if there is a value in the class field
+	if args["class"] != None :
+		characters[i]["class"] = args["class"]
+
+	#if there is a value in the alignment field
+	if args["alignment"] != None :
+		characters[i]["alignment"] = args["alignment"]
+
+	#if there is a value in the beliefs field
+	if args["beliefs"] != None :
+		characters[i]["beliefs"] = args["beliefs"]
+
+	#if there is a value in the stats field
+	if args["stats"] != None :
+		characters[i]["stats"] = args["stats"]
+
+	#if there is a value in the equipment field
+	if args["equipment"] != None :
+		characters[i]["equipment"] = args["equipment"]
+
+	#if there is a value in the spells field
+	if args["spells"] != None :
+		characters[i]["spells"] = args["spells"]
+
+	#if there is a value in the image field
+	if args["image"] != None :
+		characters[i]["image"] = args["image"]
 
 #-----------------------------------
 # Controllers to handle the requests
@@ -587,8 +640,10 @@ class User(Resource) :
 
 api.add_resource(User, "/user/<int:user_id>")
 
-#We define the controller for a request GET at the address /reaction_role
-#It will return the whole list of reaction roles.
+#We define the controller for POST and GET requests at the address
+#/reaction_role
+#It will allow the creation of new reaction roles and return the whole
+#list of reaction roles.
 class ReactionRoles(Resource) :
 	def get(self) :
 		return reaction_roles
@@ -685,8 +740,9 @@ class ReactionRole(Resource) :
 
 api.add_resource(ReactionRole, "/reaction_role/<int:reacrole_id>")
 
-#We define the controller for a request GET at the address /commands
-#It will return the whole list of commands.
+#We define the controller for POST and GET requests at the address /comamnds
+#It will allow the creation of new reaction roles and return the whole list of 
+#commands.
 class Commands(Resource) :
 	def get(self) :
 		return commands
@@ -715,7 +771,7 @@ class Commands(Resource) :
 api.add_resource(Commands, "/commands")
 
 #We define the controller for GET, PUT and DELETE resquests, at the
-#address /commands/<int:command_id>. The command ID will be arbitrarily
+#address /command/<int:command_id>. The command ID will be arbitrarily
 #provided by the API itself.
 #It will allow the modification of a command (when you want to change
 #its output for instance), its deletion and the data retrieval.
@@ -746,8 +802,7 @@ class Command(Resource) :
 		#above, and we parse them if they do.
 		args = commands_put_args.parse_args()
 
-		#Here we look at which args have been edited, and we change their value in the reaction
-		#role.
+		#Here we look at which args have been edited, and we change their value in the command
 		edit_command(i, args)
 
 		#We re-write the whole JSON file to store the freshly edited data
@@ -781,13 +836,101 @@ class Command(Resource) :
 
 api.add_resource(Command, "/command/<int:command_id>")
 
-#We define the controller for a request GET at the address /characters
-#It will return the whole list of characters.
+#We define the controller for POST and GET requests at the address /characters
+#It will allow the creation of new characters and return the whole list of
+#characters.
 class Characters(Resource) :
 	def get(self) :
 		return characters
 
+	def post(self) :
+		#We check that the args of the POST request matches the request parser created above
+		args = char_post_args.parse_args()
+
+		#Cancel the request if the character already exists in the list
+		abort_if_character_id_already_exists(args["ID"])
+		characters.append(args)
+
+		#We re-write the whole JSON file to store the current data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(CHARACTERS, "w") as f:
+			json.dump(characters, f)
+
+		#Finally, we return the amount of characters in the list, along with a 201 HTTP code.
+		#The return could be changed to anything, it is just indicative. I'll see later in
+		#the development if I need it to return a particular kind of data.
+		return len(characters), 201
+
 api.add_resource(Characters, "/characters")
+
+#We define the controller for GET, PUT and DELETE resquests, at the
+#address /character/<int:character_id>. The command ID will be arbitrarily
+#provided by the API itself.
+#It will allow the modification of a character (when you want to change
+#its name, class, etc, etc...), its deletion and the data retrieval.
+#-------
+# NOTE :
+#The GET method will return the whole JSON part of a character. It might be
+#a bit bothering for data retrieval since the bot will be made in Java
+#and Java doesn't read Json natively. I might consider developping other
+#controllers that will only return the desired value in the future.
+class Character(Resource) :
+	def get(self, character_id) :
+		#We cancel the request if the character ID requested is not in the list.
+		#On the other hand, if the character is effectively in the list, we get its
+		#index back.
+		i = abort_if_character_id_doesnt_exist(character_id)
+
+		#Then we return the JSON part for this exact character, along with a 200 HTTP code.
+		return characters[i], 200
+
+	def put(self, character_id) :
+		#We cancel the request directly if the character isn't in the list. That will ensure we
+		#do not consume operations to verify the request's correctness if it can only end
+		#aborted.
+		#On the other hand, if the character is effectively in the list, we get its index back.
+		i = abort_if_character_id_doesnt_exist(character_id)
+
+		#Then we verirfy the args of the PUT method, to ensure they respect the parser defined
+		#above, and we parse them if they do.
+		args = char_put_args.parse_args()
+
+		#Here we look at which args have been edited, and we change their value in the character
+		edit_character(i, args)
+
+		#We re-write the whole JSON file to store the freshly edited data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(CHARACTERS, "w") as f :
+			json.dump(characters, f)
+
+		#Finally, we return the character modified, along with a 200 HTTP code.
+		return characters[i], 200
+
+	def delete(self, character_id) :
+		#Same as the put request, if the character isn't found in the list, we abort directly
+		#the operation.
+		#Otherwise we get the index of the character and delete it from the list.
+		i = abort_if_character_id_doesnt_exist(character_id)
+		del characters[i]
+
+		#We re-write the whole JSON file once again to delete the user's data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(CHARACTERS, "w") as f :
+			json.dump(characters, f)
+
+		#Finally, we return the new length of the list, along with a 200 HTTP code.
+		return len(characters), 200
+
+api.add_resource(Character, "/character/<int:character_id>")
 
 #We define the controller for a request GET at the address /stats
 #It will return the whole list of stats.

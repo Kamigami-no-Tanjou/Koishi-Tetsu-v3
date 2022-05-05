@@ -18,8 +18,8 @@ def main():
     #test_servers()
     #test_users()
     #test_reaction_roles()
-    test_commands()
-    #test_characters()
+    #test_commands()
+    test_characters()
     #test_stats()
     #test_warnings()
 
@@ -172,27 +172,27 @@ def test_commands():
     print()
 
 def test_characters():
-    #POST request for a reaction role :
-    print("POST request for a reaction role :")
-    response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+    #POST request for a character :
+    print("POST request for a character :")
+    response = post(API + "characters", json={"ID" : 1, "firstname" : "Flygara", "lastname" : "Harri", "genre" : "Femme", "specie" : "Humaine", "class" : "Prêtresse de l'Harmonie", "alignment" : "Loyal Bon", "beliefs" : "Flyjungfrisme", "stats" : [0, 1, 2, 3, 4, 5], "equipment" : "None", "spells" : "Magie des plumes\nMagie de soins", "image" : "https://media.discordapp.net/attachments/887775828497293372/956267285755080805/Flygara_head_only_sans_signature.png"})
     print(response.json())
 
     print()
-    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    input("Go to : " + API + "character/1 to see the changes, then press enter.")
     print()
 
-    #PUT request for a reaction role :
-    print("PUT request for a reaction role :")
-    response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
+    #PUT request for a character :
+    print("PUT request for a character :")
+    response = put(API + "character/1", json={"firstname" : "Yulian", "lastname" : "Mikov", "genre" : "Homme", "specie" : "Humaine", "class" : "Commandant de Vartak", "alignment" : "Neutre Bon", "beliefs" : "Flyjungfrisme", "stats" : [6, 7, 8, 9, 10, 11], "equipment" : "None", "spells" : "Magie de pression", "image" : "https://media.discordapp.net/attachments/887775828497293372/947140133193383997/Yulian_Mikov_head_only_unsigned.png"})
     print(response.json())
 
     print()
-    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    input("Go to : " + API + "character/1 to see the changes, then press enter.")
     print()
 
-    #GET request for a user :
+    #GET request for a character :
     print("GET request for a reaction role :")
-    response = get(API + "reaction_role/0")
+    response = get(API + "character/0")
     print(response.json())
 
     print()
@@ -200,12 +200,12 @@ def test_characters():
     print()
 
     #DELETE request for a user :
-    print("DELETE request for a user :")
-    response = delete(API + "reaction_role/1")
+    print("DELETE request for a character :")
+    response = delete(API + "character/1")
     print(response.json())
 
     print()
-    input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
+    input("Go to : " + API + "characters to see the changes, then press enter.")
     print()
 
 def test_stats():
