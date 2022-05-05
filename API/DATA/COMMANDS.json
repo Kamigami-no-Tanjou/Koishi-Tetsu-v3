@@ -1,6 +1,1 @@
-[
-    {
-        "ID": 0,
-        "name": "test"
-    }
-]
+[{"ID": 0, "name": "test", "output": "Hello_world"}]

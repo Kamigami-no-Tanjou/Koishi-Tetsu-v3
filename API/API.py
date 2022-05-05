@@ -94,10 +94,12 @@ with open(REACTION_ROLES, "r") as rf:
 commands_post_args = reqparse.RequestParser()
 commands_post_args.add_argument("ID", type=int, required=True)
 commands_post_args.add_argument("name", type=str, required=True)
+commands_post_args.add_argument("output", type=str, required=True)
 
 #request parser for a PUT request on the command list :
 commands_put_args = reqparse.RequestParser()
 commands_put_args.add_argument("name", type=str)
+commands_put_args.add_argument("output", type=str)
 
 #We create a list of commands and add the content of the ./DATA/COMMANDS.json to it.
 with open(COMMANDS, "r") as rf:
@@ -170,7 +172,8 @@ def abort_if_server_id_doesnt_exist(server_id):
 	for i in range(len(servers)):
 		if server_id == servers[i]["ID"]:
 			#In that case the ID is found here, so there's no need to go and search for it any longer.
-			#Still we return the index, so we don't have to search the whole list once again.
+			#Still we return the index, for efficiency, hence we don't have to go through the whole
+			#list once again.
 			return i
 	
 	abort(404, message="Invalid server ID")
@@ -187,7 +190,8 @@ def abort_if_user_id_doesnt_exist(user_id):
 	for i in range(len(users)):
 		if user_id == users[i]["ID"]:
 			#In that case the ID is found here, so there's no need to go and search for it any longer.
-			#Still we return the index, so we don't have to search the whole list once again.
+			#Still we return the index, for efficiency, hence we don't have to go through the whole
+			#list once again.
 			return i
 	
 	abort(404, message="Invalid user ID")
@@ -203,7 +207,8 @@ def abort_if_reacrole_id_doesnt_exist(reacrole_id):
 	for i in range(len(reaction_roles)):
 		if reacrole_id == reaction_roles[i]["ID"]:
 			#In that case the ID is found here, so there's no need to go and search for it any longer.
-			#Still we return the index, so we don't have to search the whole list once again.
+			#Still we return the index, for efficiency, hence we don't have to go through the whole
+			#list once again.
 			return i
 			
 	abort(404, message="Invalid reaction role ID")
@@ -219,7 +224,8 @@ def abort_if_command_id_doesnt_exist(command_id):
 	for i in range(len(commands)):
 		if command_id == commands[i]["ID"]:
 			#In that case the ID is found here, so there's no need to go and search for it any longer.
-			#Still we return the index, so we don't have to search the whole list once again.
+			#Still we return the index, for efficiency, hence we don't have to go through the whole
+			#list once again.
 			return i
 
 	abort(404, message="Invalid command ID")
@@ -235,7 +241,8 @@ def abort_if_character_id_doesnt_exist(char_id):
 	for i in range(len(characters)):
 		if char_id == characters[i]["ID"]:
 			#In that case the ID is found here, so there's no need to go and search for it any longer.
-			#Still we return the index, so we don't have to search the whole list once again.
+			#Still we return the index, for efficiency, hence we don't have to go through the whole
+			#list once again.
 			return i
 	
 	abort(404, message="Invalid character ID")
@@ -251,7 +258,8 @@ def abort_if_stats_id_doesnt_exist(stats_id):
 	for i in range(len(stats)):
 		if stats_id == stats[i]["ID"]:
 			#In that case the ID is found here, so there's no need to go and search for it any longer.
-			#Still we return the index, so we don't have to search the whole list once again.
+			#Still we return the index, for efficiency, hence we don't have to go through the whole
+			#list once again.
 			return i
 	
 	abort(404, message="Invalid stats ID")
@@ -267,7 +275,8 @@ def abort_if_warning_id_doesnt_exist(warning_id):
 	for i in range(len(warnings)):
 		if warning_id == warnings[i]["ID"]:
 			#In that case the ID is found here, so there's no need to go and search for it any longer.
-			#Still we return the index, so we don't have to search the whole list once again.
+			#Still we return the index, for efficiency, hence we don't have to go through the whole
+			#list once again.
 			return i
 	abort(404, message="Invalid warning ID")
 
@@ -371,6 +380,23 @@ def edit_reacrole(i, args) :
 	#if there is a value in the emote field
 	if args["emote"] != None : 
 		reaction_roles[i]["emote"] = args["emote"]
+
+#This method is pretty much here because I thought it would be ugly to leave an
+#endless list of 'if' in the Command put method.
+#At the moment, I can't think of a real better way to do that, but it might be solved
+#in the near future, via an HTTP request that will allow the modification of only one
+#parameter. This way we will only have to create a switch/case to check which parameter
+#needs to be modified, and we won't have to deal with JSON parsing in Java anymore.
+#I'm also very likely to create methods that will edit several predefined parameters
+#at once, as it would reduce the amount of simultaneous requests to the API. 
+def edit_command(i, args) :
+	#if there is a value in the name field
+	if args["name"] != None :
+		commands[i]["name"] = args["name"]
+
+	#if there is a value in the output field
+	if args["output"] != None : 
+		commands[i]["output"] = args["output"]
 
 #-----------------------------------
 # Controllers to handle the requests
@@ -665,7 +691,95 @@ class Commands(Resource) :
 	def get(self) :
 		return commands
 
+	def post(self) :
+		#We check that the args of the POST request matches the request parser created above
+		args = commands_post_args.parse_args()
+
+		#Cancel the request if the command already exists in the list
+		abort_if_reacrole_id_already_exists(args["ID"])
+		commands.append(args)
+
+		#We re-write the whole JSON file to store the current data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(COMMANDS, "w") as f:
+			json.dump(commands, f)
+
+		#Finally, we return the amount of commands in the list, along with a 201 HTTP code.
+		#The return could be changed to anything, it is just indicative. I'll see later in
+		#the development if I need it to return a particular kind of data.
+		return len(commands), 201
+
 api.add_resource(Commands, "/commands")
+
+#We define the controller for GET, PUT and DELETE resquests, at the
+#address /commands/<int:command_id>. The command ID will be arbitrarily
+#provided by the API itself.
+#It will allow the modification of a command (when you want to change
+#its output for instance), its deletion and the data retrieval.
+#-------
+# NOTE :
+#The GET method will return the whole JSON part of a command. It might be
+#a bit bothering for data retrieval since the bot will be made in Java
+#and Java doesn't read Json natively. I might consider developping other
+#controllers that will only return the desired value in the future.
+class Command(Resource) :
+	def get(self, command_id) :
+		#We cancel the request if the command ID requested is not in the list.
+		#On the other hand, if the command is effectively in the list, we get its
+		#index back.
+		i = abort_if_command_id_doesnt_exist(command_id)
+
+		#Then we return the JSON part for this exact command, along with a 200 HTTP code.
+		return commands[i], 200
+
+	def put(self, command_id) :
+		#We cancel the request directly if the command isn't in the list. That will ensure we
+		#do not consume operations to verify the request's correctness if it can only end
+		#aborted.
+		#On the other hand, if the command is effectively in the list, we get its index back.
+		i = abort_if_command_id_doesnt_exist(command_id)
+
+		#Then we verirfy the args of the PUT method, to ensure they respect the parser defined
+		#above, and we parse them if they do.
+		args = commands_put_args.parse_args()
+
+		#Here we look at which args have been edited, and we change their value in the reaction
+		#role.
+		edit_command(i, args)
+
+		#We re-write the whole JSON file to store the freshly edited data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(COMMANDS, "w") as f :
+			json.dump(commands, f)
+
+		#Finally, we return the command modified, along with a 200 HTTP code.
+		return commands[i], 200
+
+	def delete(self, command_id) :
+		#Same as the put request, if the command isn't found in the list, we abort directly
+		#the operation.
+		#Otherwise we get the index of the command and delete it from the list.
+		i = abort_if_command_id_doesnt_exist(command_id)
+		del commands[i]
+
+		#We re-write the whole JSON file once again to delete the user's data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(COMMANDS, "w") as f :
+			json.dump(commands, f)
+
+		#Finally, we return the new length of the list, along with a 200 HTTP code.
+		return len(commands), 200
+
+api.add_resource(Command, "/command/<int:command_id>")
 
 #We define the controller for a request GET at the address /characters
 #It will return the whole list of characters.

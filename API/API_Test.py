@@ -14,110 +14,272 @@ API = "http://127.0.0.1:5000/"
 if len(argv) > 1 :
     API = argv[1]
 
-#POST request for a server :
-print("POST request for a server :")
-response = post(API + "servers", json={"ID" : 933640317121474610})
-print(response.json())
+def main():
+    #test_servers()
+    #test_users()
+    #test_reaction_roles()
+    test_commands()
+    #test_characters()
+    #test_stats()
+    #test_warnings()
 
-print()
-input("Go to : " + API + "server/933640317121474610 to see the changes, then press enter.")
-print()
+def test_servers():
+    #POST request for a server :
+    print("POST request for a server :")
+    response = post(API + "servers", json={"ID" : 933640317121474610})
+    print(response.json())
 
-#PUT request for a server :
-print("PUT request for a server :")
-response = put(API + "server/933640317121474610", json={"mutedUsers" : 280341659789819904, "mutedRole" : 772749593573457971, "maxWarn" : 5, "cooldown" : 155, "banned" : 444444444444444444, "prefix" : "dif", "autoRoles" : 444444444444444444, "reactionRoles" : 0, "customCommands" : 0})
-print(response.json())
+    print()
+    input("Go to : " + API + "server/933640317121474610 to see the changes, then press enter.")
+    print()
 
-print()
-input("Go to : " + API + "server/933640317121474610 to see the changes, then press enter.")
-print()
+    #PUT request for a server :
+    print("PUT request for a server :")
+    response = put(API + "server/933640317121474610", json={"mutedUsers" : 280341659789819904, "mutedRole" : 772749593573457971, "maxWarn" : 5, "cooldown" : 155, "banned" : 444444444444444444, "prefix" : "dif", "autoRoles" : 444444444444444444, "reactionRoles" : 0, "customCommands" : 0})
+    print(response.json())
 
-#GET request for a server :
-print("GET request for a server :")
-response = get(API + "server/772740999058817026")
-print(response.json())
+    print()
+    input("Go to : " + API + "server/933640317121474610 to see the changes, then press enter.")
+    print()
 
-print()
-input("Press Enter to continue...")
-print()
+    #GET request for a server :
+    print("GET request for a server :")
+    response = get(API + "server/772740999058817026")
+    print(response.json())
 
-#DELETE request for a server :
-print("DELETE request for a server :")
-response = delete(API + "server/933640317121474610")
-print(response.json())
+    print()
+    input("Press Enter to continue...")
+    print()
 
-print()
-input("Go to : " + API + "server/933640317121474610 to see the changes, then press enter.")
-print()
+    #DELETE request for a server :
+    print("DELETE request for a server :")
+    response = delete(API + "server/933640317121474610")
+    print(response.json())
 
-#POST request for a user :
-print("POST request for a user :")
-response = post(API + "users", json={"ID" : 523804235217895430})
-print(response.json())
+    print()
+    input("Go to : " + API + "server/933640317121474610 to see the changes, then press enter.")
+    print()
 
-print()
-input("Go to : " + API + "user/523804235217895430 to see the changes, then press enter.")
-print()
+def test_users():
+    #POST request for a user :
+    print("POST request for a user :")
+    response = post(API + "users", json={"ID" : 523804235217895430})
+    print(response.json())
 
-#PUT request for a user :
-print("PUT request for a user :")
-response = put(API + "user/523804235217895430", json={"servers" : 772740999058817026, "characters" : 0, "exp" : 200, "birthdate" : "01/01"})
-print(response.json())
+    print()
+    input("Go to : " + API + "user/523804235217895430 to see the changes, then press enter.")
+    print()
 
-print()
-input("Go to : " + API + "user/523804235217895430 to see the changes, then press enter.")
-print()
+    #PUT request for a user :
+    print("PUT request for a user :")
+    response = put(API + "user/523804235217895430", json={"servers" : 772740999058817026, "characters" : 0, "exp" : 200, "birthdate" : "01/01"})
+    print(response.json())
 
-#GET request for a user :
-print("GET request for a user :")
-response = get(API + "user/280341659789819904")
-print(response.json())
+    print()
+    input("Go to : " + API + "user/523804235217895430 to see the changes, then press enter.")
+    print()
 
-print()
-input("Press Enter to continue...")
-print()
+    #GET request for a user :
+    print("GET request for a user :")
+    response = get(API + "user/280341659789819904")
+    print(response.json())
 
-#DELETE request for a user :
-print("DELETE request for a user :")
-response = delete(API + "user/523804235217895430")
-print(response.json())
+    print()
+    input("Press Enter to continue...")
+    print()
 
-print()
-input("Go to : " + API + "user/523804235217895430 to see the changes, then press enter.")
-print()
+    #DELETE request for a user :
+    print("DELETE request for a user :")
+    response = delete(API + "user/523804235217895430")
+    print(response.json())
 
-#POST request for a reaction role :
-print("POST request for a reaction role :")
-response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
-print(response.json())
+    print()
+    input("Go to : " + API + "user/523804235217895430 to see the changes, then press enter.")
+    print()
 
-print()
-input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
-print()
+def test_reaction_roles():
+    #POST request for a reaction role :
+    print("POST request for a reaction role :")
+    response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+    print(response.json())
 
-#PUT request for a reaction role :
-print("PUT request for a reaction role :")
-response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
-print(response.json())
+    print()
+    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    print()
 
-print()
-input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
-print()
+    #PUT request for a reaction role :
+    print("PUT request for a reaction role :")
+    response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
+    print(response.json())
 
-#GET request for a user :
-print("GET request for a reaction role :")
-response = get(API + "reaction_role/0")
-print(response.json())
+    print()
+    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    print()
 
-print()
-input("Press Enter to continue...")
-print()
+    #GET request for a reaction role :
+    print("GET request for a reaction role :")
+    response = get(API + "reaction_role/0")
+    print(response.json())
 
-#DELETE request for a user :
-print("DELETE request for a user :")
-response = delete(API + "reaction_role/1")
-print(response.json())
+    print()
+    input("Press Enter to continue...")
+    print()
 
-print()
-input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
-print()
+    #DELETE request for a reaction role :
+    print("DELETE request for a user :")
+    response = delete(API + "reaction_role/1")
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
+    print()
+
+def test_commands():
+    #POST request for a command :
+    print("POST request for a command :")
+    response = post(API + "commands", json={"ID" : 1, "name" : "It's a mee!", "output" : "Marioo!"})
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "command/1 to see the changes, then press enter.")
+    print()
+
+    #PUT request for a command :
+    print("PUT request for a command :")
+    response = put(API + "command/1", json={"name" : "Oh... Actually,", "output" : "I'm just a stone lover :man_shrugging:"})
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "command/1 to see the changes, then press enter.")
+    print()
+
+    #GET request for a command :
+    print("GET request for a command :")
+    response = get(API + "command/0")
+    print(response.json())
+
+    print()
+    input("Press Enter to continue...")
+    print()
+
+    #DELETE request for a command :
+    print("DELETE request for a command :")
+    response = delete(API + "command/1")
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "commands to see the changes, then press enter.")
+    print()
+
+def test_characters():
+    #POST request for a reaction role :
+    print("POST request for a reaction role :")
+    response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    print()
+
+    #PUT request for a reaction role :
+    print("PUT request for a reaction role :")
+    response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    print()
+
+    #GET request for a user :
+    print("GET request for a reaction role :")
+    response = get(API + "reaction_role/0")
+    print(response.json())
+
+    print()
+    input("Press Enter to continue...")
+    print()
+
+    #DELETE request for a user :
+    print("DELETE request for a user :")
+    response = delete(API + "reaction_role/1")
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
+    print()
+
+def test_stats():
+    #POST request for a reaction role :
+    print("POST request for a reaction role :")
+    response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    print()
+
+    #PUT request for a reaction role :
+    print("PUT request for a reaction role :")
+    response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    print()
+
+    #GET request for a user :
+    print("GET request for a reaction role :")
+    response = get(API + "reaction_role/0")
+    print(response.json())
+
+    print()
+    input("Press Enter to continue...")
+    print()
+
+    #DELETE request for a user :
+    print("DELETE request for a user :")
+    response = delete(API + "reaction_role/1")
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
+    print()
+
+def test_warnings():
+    #POST request for a reaction role :
+    print("POST request for a reaction role :")
+    response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    print()
+
+    #PUT request for a reaction role :
+    print("PUT request for a reaction role :")
+    response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    print()
+
+    #GET request for a user :
+    print("GET request for a reaction role :")
+    response = get(API + "reaction_role/0")
+    print(response.json())
+
+    print()
+    input("Press Enter to continue...")
+    print()
+
+    #DELETE request for a user :
+    print("DELETE request for a user :")
+    response = delete(API + "reaction_role/1")
+    print(response.json())
+
+    print()
+    input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
+    print()
+
+main()
