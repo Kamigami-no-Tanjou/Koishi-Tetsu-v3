@@ -1,3 +1,5 @@
+from ast import arguments
+from urllib import request
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort
 from flask_cors import CORS
@@ -33,6 +35,7 @@ serv_post_args.add_argument("mutedRole", type=int, default=0)
 serv_post_args.add_argument("maxWarn", type=int, default=3)
 serv_post_args.add_argument("cooldown", type=int, default=150)
 serv_post_args.add_argument("banned", type=int, default=[], action='append')
+serv_post_args.add_argument("warnings", type=int, default=[], action='append')
 serv_post_args.add_argument("prefix", type=str, default='kt')
 serv_post_args.add_argument("autoRoles", type=int, default=[], action='append')
 serv_post_args.add_argument("reactionRoles", type=int, default=[], action='append')
@@ -45,6 +48,7 @@ serv_put_args.add_argument("mutedRole", type=int)
 serv_put_args.add_argument("maxWarn", type=int)
 serv_put_args.add_argument("cooldown", type=int)
 serv_put_args.add_argument("banned", type=int, action='append')
+serv_put_args.add_argument("warnings", type=int, action='append')
 serv_put_args.add_argument("prefix", type=str)
 serv_put_args.add_argument("autoRoles", type=int, action='append')
 serv_put_args.add_argument("reactionRoles", type=int, action='append')
@@ -75,7 +79,6 @@ with open(USERS, "r") as rf:
 
 #request parser for a POST request on the reaction role list :
 reacrole_post_args = reqparse.RequestParser()
-reacrole_post_args.add_argument("ID", type=int, required=True)
 reacrole_post_args.add_argument("message", type=int, required=True)
 reacrole_post_args.add_argument("role", type=int, required=True)
 reacrole_post_args.add_argument("emote", type=str, required=True)
@@ -92,7 +95,6 @@ with open(REACTION_ROLES, "r") as rf:
 
 #request parser for a POST request on the command list :
 commands_post_args = reqparse.RequestParser()
-commands_post_args.add_argument("ID", type=int, required=True)
 commands_post_args.add_argument("name", type=str, required=True)
 commands_post_args.add_argument("output", type=str, required=True)
 
@@ -107,7 +109,6 @@ with open(COMMANDS, "r") as rf:
 
 #request parser for a POST request on the character list :
 char_post_args = reqparse.RequestParser()
-char_post_args.add_argument("ID", type=int, required=True)
 char_post_args.add_argument("firstname", type=str)
 char_post_args.add_argument("lastname", type=str)
 char_post_args.add_argument("genre", type=str)
@@ -140,7 +141,6 @@ with open(CHARACTERS, "r") as rf:
 
 #request parser for a POST request on the stats list :
 stats_post_args = reqparse.RequestParser()
-stats_post_args.add_argument("ID", type=int, required=True)
 stats_post_args.add_argument("name", type=str, required=True)
 stats_post_args.add_argument("value", type=int, required=True)
 
@@ -155,8 +155,6 @@ with open(STATS, "r") as rf:
 
 #request parser for a POST request on the warnings list :
 warnings_post_args = reqparse.RequestParser()
-warnings_post_args.add_argument("ID", type=int, required=True)
-warnings_post_args.add_argument("server", type=int, required=True)
 warnings_post_args.add_argument("user", type=int, required=True)
 
 #We create a list of warnings and add the content of the ./DATA/WARNINGS.json to it.
@@ -233,7 +231,7 @@ def abort_if_command_id_doesnt_exist(command_id):
 #Aborts the insertion of a command's data if the command's ID already exists.
 def abort_if_command_id_already_exists(command_id):
 	for i in range(len(commands)):
-		if command_id in commands[i]["ID"]:
+		if command_id == commands[i]["ID"]:
 			abort(409, messag="Command already in the list")
 
 #Abort the extraction of a character's data if the character's ID isn't in the list.
@@ -318,6 +316,10 @@ def edit_server(i, args) :
 	#if there is a value in the banned field
 	if args["banned"] != None :
 		servers[i]["banned"].extend(args["banned"])
+
+	#if there is a value in the warnings field
+	if args["warnings"] != None :
+		servers[i]["warnings"].extend(args["warnings"])
 
 	#if there is a value in the prefix field
 	if args["prefix"] != None :
@@ -478,11 +480,11 @@ def edit_stat(i, args) :
 class Servers(Resource) :
 	def post(self) :
 		#We check that the args of the POST request matches the request parser created above
-		args = serv_post_args.parse_args()
+		server = serv_post_args.parse_args()
 
 		#Cancel the request if the server already exists in the list
-		abort_if_server_id_already_exists(args["ID"])
-		servers.append(args)
+		abort_if_server_id_already_exists(server["ID"])
+		servers.append(server)
 
 		#We re-write the whole JSON file to store the current data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
@@ -571,11 +573,11 @@ api.add_resource(Server, "/server/<int:server_id>")
 class Users(Resource) :
 	def post(self) :
 		#We check that the args of the POST request matches the request parser created above
-		args = user_post_args.parse_args()
+		user = user_post_args.parse_args()
 
 		#Cancel the request if the user already exists in the list
-		abort_if_user_id_already_exists(args["ID"])
-		users.append(args)
+		abort_if_user_id_already_exists(user["ID"])
+		users.append(user)
 
 		#We re-write the whole JSON file to store the current data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
@@ -669,9 +671,17 @@ class ReactionRoles(Resource) :
 		#We check that the args of the POST request matches the request parser created above
 		args = reacrole_post_args.parse_args()
 
-		#Cancel the request if the reaction role already exists in the list
-		abort_if_reacrole_id_already_exists(args["ID"])
-		reaction_roles.append(args)
+		#We create the dictionnary for a reaction role and we give it its id. We then
+		#increment the variable by one to keep the count correct
+		id = reaction_roles[len(reaction_roles) - 1]["ID"] + 1
+		reaction_role = {"ID" : id}
+
+		#We add to that dictionnary the args recieved from the request
+		reaction_role.update(args)
+
+		#Just in case, we cancel the request if the id given already exists in the list
+		abort_if_reacrole_id_already_exists(reaction_role["ID"])
+		reaction_roles.append(reaction_role)
 
 		#We re-write the whole JSON file to store the current data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
@@ -681,11 +691,8 @@ class ReactionRoles(Resource) :
 		with open(REACTION_ROLES, "w") as f:
 			json.dump(reaction_roles, f)
 
-		#Finally, we return the amount of reaction roles in the list, along with a 201 HTTP
-		#code.
-		#The return could be changed to anything, it is just indicative. I'll see later in
-		#the development if I need it to return a particular kind of data.
-		return len(reaction_roles), 201
+		#Finally, we return its ID, as it can't be known above, along with a 201 HTTP code.
+		return reaction_role["ID"], 201
 
 api.add_resource(ReactionRoles, "/reaction_roles")
 
@@ -768,9 +775,17 @@ class Commands(Resource) :
 		#We check that the args of the POST request matches the request parser created above
 		args = commands_post_args.parse_args()
 
-		#Cancel the request if the command already exists in the list
-		abort_if_reacrole_id_already_exists(args["ID"])
-		commands.append(args)
+		#We create the dictionnary for a command and we give it its id. We then increment
+		#the variable by one to keep the count correct
+		id = commands[len(commands) - 1]["ID"] + 1
+		command = {"ID" : id}
+
+		#We add to that dictionnary the args recieved from the request
+		command.update(args)
+
+		#Just in case, we cancel the request if the id given already exists in the list
+		abort_if_command_id_already_exists(command["ID"])
+		commands.append(command)
 
 		#We re-write the whole JSON file to store the current data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
@@ -780,10 +795,8 @@ class Commands(Resource) :
 		with open(COMMANDS, "w") as f:
 			json.dump(commands, f)
 
-		#Finally, we return the amount of commands in the list, along with a 201 HTTP code.
-		#The return could be changed to anything, it is just indicative. I'll see later in
-		#the development if I need it to return a particular kind of data.
-		return len(commands), 201
+		#Finally, we return its ID, as it can't be known above, along with a 201 HTTP code.
+		return command["ID"], 201
 
 api.add_resource(Commands, "/commands")
 
@@ -864,9 +877,17 @@ class Characters(Resource) :
 		#We check that the args of the POST request matches the request parser created above
 		args = char_post_args.parse_args()
 
-		#Cancel the request if the character already exists in the list
-		abort_if_character_id_already_exists(args["ID"])
-		characters.append(args)
+		#We create the dictionnary for a command and we give it its id. We then increment
+		#the variable by one to keep the count correct
+		id = characters[len(characters) - 1]["ID"] + 1
+		character = {"ID" : id}
+
+		#We add to that dictionnary the args recieved from the request
+		character.update(args)
+
+		#Just in case, we cancel the request if the id given already exists in the list
+		abort_if_character_id_already_exists(character["ID"])
+		characters.append(character)
 
 		#We re-write the whole JSON file to store the current data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
@@ -876,16 +897,14 @@ class Characters(Resource) :
 		with open(CHARACTERS, "w") as f:
 			json.dump(characters, f)
 
-		#Finally, we return the amount of characters in the list, along with a 201 HTTP code.
-		#The return could be changed to anything, it is just indicative. I'll see later in
-		#the development if I need it to return a particular kind of data.
-		return len(characters), 201
+		#Finally, we return its ID, as it can't be known above, along with a 201 HTTP code.
+		return character["ID"], 201
 
 api.add_resource(Characters, "/characters")
 
 #We define the controller for GET, PUT and DELETE resquests, at the
-#address /character/<int:character_id>. The command ID will be arbitrarily
-#provided by the API itself.
+#address /character/<int:character_id>. The character ID will be
+#arbitrarily provided by the API itself.
 #It will allow the modification of a character (when you want to change
 #its name, class, etc, etc...), its deletion and the data retrieval.
 #-------
@@ -959,9 +978,17 @@ class Stats(Resource) :
 		#We check that the args of the POST request matches the request parser created above
 		args = stats_post_args.parse_args()
 
-		#Cancel the request if the stat already exists in the list
-		abort_if_stats_id_already_exists(args["ID"])
-		stats.append(args)
+		#We create the dictionnary for a stat and we give it its id. We then increment the
+		#variable by one to keep the count correct
+		id = stats[len(stats) - 1]["ID"] + 1
+		stat = {"ID" : id}
+
+		#We add to that dictionnary the args recieved from the request
+		stat.update(args)
+
+		#Just in case, we cancel the request if the id given already exists in the list
+		abort_if_stats_id_already_exists(stat["ID"])
+		stats.append(stat)
 
 		#We re-write the whole JSON file to store the current data
 		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
@@ -971,15 +998,13 @@ class Stats(Resource) :
 		with open(STATS, "w") as f:
 			json.dump(stats, f)
 
-		#Finally, we return the amount of stats in the list, along with a 201 HTTP code.
-		#The return could be changed to anything, it is just indicative. I'll see later in
-		#the development if I need it to return a particular kind of data.
-		return len(stats), 201
+		#Finally, we return its ID, as it can't be known above, along with a 201 HTTP code.
+		return stat["ID"], 201
 
 api.add_resource(Stats, "/stats")
 
 #We define the controller for GET, PUT and DELETE resquests, at the address
-#/stat/<int:stat_id>. The command ID will be arbitrarily provided by the API
+#/stat/<int:stat_id>. The stat ID will be arbitrarily provided by the API
 #itself.
 #It will allow the modification of a character's stat, its deletion and the
 #data retrieval.
@@ -1050,7 +1075,74 @@ class Warnings(Resource) :
 	def get(self) :
 		return warnings
 
+	def post(self) :
+		#We check that the args of the POST request matches the request parser created above
+		args = warnings_post_args.parse_args()
+
+		#We create the dictionnary for a warning and we give it its id. We then increment
+		#the variable by one to keep the count correct
+		id = warnings[len(warnings) - 1]["ID"] + 1
+		warning = {"ID" : id}
+
+		#We add to that dictionnary the args recieved from the request
+		warning.update(args)
+
+		#Just in case, we cancel the request if the id given already exists in the list
+		abort_if_warning_id_already_exists(warning["ID"])
+		warnings.append(warning)
+
+		#We re-write the whole JSON file to store the current data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(WARNINGS, "w") as f:
+			json.dump(warnings, f)
+
+		#Finally, we return its ID, as it can't be known above, along with a 201 HTTP code.
+		return warning["ID"], 201
+
 api.add_resource(Warnings, "/warnings")
+
+#We define the controller for GET and DELETE resquests, at the address
+#/warning/<int:warning_id>. The warning ID will be arbitrarily provided by the
+#API itself.
+#It will only allow the deletion and the data retrieval of a warning, as it
+#isn't meant to be editable.
+#-------
+# NOTE :
+#The GET method will return the whole JSON part of a stat. It might be
+#a bit bothering for data retrieval since the bot will be made in Java
+#and Java doesn't read Json natively. I might consider developping other
+#controllers that will only return the desired value in the future.
+class Warning(Resource) :
+	def get(self, warning_id) :
+		#We cancel the request if the warning ID requested is not in the list.
+		#On the other hand, if the warning is effectively in the list, we get its
+		#index back.
+		i = abort_if_warning_id_doesnt_exist(warning_id)
+
+		#Then we return the JSON part for this exact warning, along with a 200 HTTP code.
+		return warnings[i], 200
+
+	def delete(self, warning_id) :
+		#If the warning isn't found in the list, we abort directly the operation.
+		#Otherwise we get the index of the warning and delete it from the list.
+		i = abort_if_warning_id_doesnt_exist(warning_id)
+		del warnings[i]
+
+		#We re-write the whole JSON file once again to delete the warning's data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(WARNINGS, "w") as f :
+			json.dump(warnings, f)
+
+		#Finally, we return the new length of the list, along with a 200 HTTP code.
+		return len(warnings), 200
+
+api.add_resource(Warning, "/warning/<int:warning_id>")
 
 if __name__ == "__main__" :
 	app.run(debug = True)

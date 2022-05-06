@@ -17,11 +17,11 @@ if len(argv) > 1 :
 def main():
     #test_servers()
     #test_users()
-    #test_reaction_roles()
-    #test_commands()
-    #test_characters()
+    test_reaction_roles()
+    test_commands()
+    test_characters()
     test_stats()
-    #test_warnings()
+    test_warnings()
 
 def test_servers():
     #POST request for a server :
@@ -35,7 +35,7 @@ def test_servers():
 
     #PUT request for a server :
     print("PUT request for a server :")
-    response = put(API + "server/933640317121474610", json={"mutedUsers" : 280341659789819904, "mutedRole" : 772749593573457971, "maxWarn" : 5, "cooldown" : 155, "banned" : 444444444444444444, "prefix" : "dif", "autoRoles" : 444444444444444444, "reactionRoles" : 0, "customCommands" : 0})
+    response = put(API + "server/933640317121474610", json={"mutedUsers" : 280341659789819904, "mutedRole" : 772749593573457971, "maxWarn" : 5, "cooldown" : 155, "banned" : 444444444444444444, "warnings" : 0, "prefix" : "dif", "autoRoles" : 444444444444444444, "reactionRoles" : 0, "customCommands" : 0})
     print(response.json())
 
     print()
@@ -100,7 +100,7 @@ def test_users():
 def test_reaction_roles():
     #POST request for a reaction role :
     print("POST request for a reaction role :")
-    response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+    response = post(API + "reaction_roles", json={"message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
     print(response.json())
 
     print()
@@ -137,7 +137,7 @@ def test_reaction_roles():
 def test_commands():
     #POST request for a command :
     print("POST request for a command :")
-    response = post(API + "commands", json={"ID" : 1, "name" : "It's a mee!", "output" : "Marioo!"})
+    response = post(API + "commands", json={"name" : "It's a mee!", "output" : "Marioo!"})
     print(response.json())
 
     print()
@@ -174,7 +174,7 @@ def test_commands():
 def test_characters():
     #POST request for a character :
     print("POST request for a character :")
-    response = post(API + "characters", json={"ID" : 1, "firstname" : "Flygara", "lastname" : "Harri", "genre" : "Femme", "specie" : "Humaine", "class" : "Prêtresse de l'Harmonie", "alignment" : "Loyal Bon", "beliefs" : "Flyjungfrisme", "stats" : [0, 1, 2, 3, 4, 5], "equipment" : "None", "spells" : "Magie des plumes\nMagie de soins", "image" : "https://media.discordapp.net/attachments/887775828497293372/956267285755080805/Flygara_head_only_sans_signature.png"})
+    response = post(API + "characters", json={"firstname" : "Flygara", "lastname" : "Harri", "genre" : "Femme", "specie" : "Humaine", "class" : "Prêtresse de l'Harmonie", "alignment" : "Loyal Bon", "beliefs" : "Flyjungfrisme", "stats" : [0, 1, 2, 3, 4, 5], "equipment" : "None", "spells" : "Magie des plumes\nMagie de soins", "image" : "https://media.discordapp.net/attachments/887775828497293372/956267285755080805/Flygara_head_only_sans_signature.png"})
     print(response.json())
 
     print()
@@ -211,7 +211,7 @@ def test_characters():
 def test_stats():
     #POST request for a stat :
     print("POST request for a stat :")
-    response = post(API + "stats", json={"ID" : 6, "name" : "test", "value" : 0})
+    response = post(API + "stats", json={"name" : "test", "value" : 0})
     print(response.json())
 
     print()
@@ -246,27 +246,18 @@ def test_stats():
     print()
 
 def test_warnings():
-    #POST request for a reaction role :
-    print("POST request for a reaction role :")
-    response = post(API + "reaction_roles", json={"ID" : 1, "message" : 950721904409456640, "role" : 772749555384844299, "emote" : ""})
+    #POST request for a warning :
+    print("POST request for a warning :")
+    response = post(API + "warnings", json={"user" : 437934657737195522})
     print(response.json())
 
     print()
-    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
+    input("Go to : " + API + "warning/1 to see the changes, then press enter.")
     print()
 
-    #PUT request for a reaction role :
-    print("PUT request for a reaction role :")
-    response = put(API + "reaction_role/1", json={"message" : 950721882141896745, "role" : 928643883636764693, "emote" : "test"})
-    print(response.json())
-
-    print()
-    input("Go to : " + API + "reaction_role/1 to see the changes, then press enter.")
-    print()
-
-    #GET request for a user :
-    print("GET request for a reaction role :")
-    response = get(API + "reaction_role/0")
+    #GET request for a warning :
+    print("GET request for a warning :")
+    response = get(API + "warning/0")
     print(response.json())
 
     print()
@@ -275,11 +266,11 @@ def test_warnings():
 
     #DELETE request for a user :
     print("DELETE request for a user :")
-    response = delete(API + "reaction_role/1")
+    response = delete(API + "warning/1")
     print(response.json())
 
     print()
-    input("Go to : " + API + "reaction_roles to see the changes, then press enter.")
+    input("Go to : " + API + "warnings to see the changes, then press enter.")
     print()
 
 main()
