@@ -11,7 +11,6 @@ The API will be RESTful and made with Python, using the Flask Restful library. I
 
 ### API Dependencies :
 Here I will list all the python modules you'll have to install to make the API run correctly.
-- numpy
 - flask
 - flask_restful
 - flask_cors

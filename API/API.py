@@ -1,5 +1,3 @@
-from ast import arguments
-from urllib import request
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort
 from flask_cors import CORS
