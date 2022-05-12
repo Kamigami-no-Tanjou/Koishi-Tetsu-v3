@@ -1,3 +1,10 @@
+#######################################################
+# Author : RedNeath                                   #
+# Licensed under MIT (head to /LICENSE for more info) #
+#                                                     #
+# Copyright © 2022 Kamigami no Tanjou                 #
+#######################################################
+
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort
 from flask_cors import CORS

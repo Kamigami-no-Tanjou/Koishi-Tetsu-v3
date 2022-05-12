@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  * For now it only takes one name, one output and returns the output when triggered.
  * 
  * @author RedNeath
+ * Copyright © 2022 Kamigami no Tanjou
  */
 public abstract class CustomCommand extends Command implements ApiResource {
     /** The output for this custom command */

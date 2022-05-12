@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
  * these all by itself out of the lang.lang file in the resources directory.
  * 
  * @author RedNeath
+ * Copyright © 2022 Kamigami no Tanjou
  */
 public class Language {
     private String lang;

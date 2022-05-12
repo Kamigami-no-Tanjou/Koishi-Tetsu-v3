@@ -7,6 +7,7 @@ import com.github.cliftonlabs.json_simple.JsonObject;
  * necessary methods for that.
  * 
  * @author RedNeath
+ * Copyright © 2022 Kamigami no Tanjou
  */
 public interface ApiResource {
     /**

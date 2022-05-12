@@ -1,3 +1,10 @@
+#######################################################
+# Author : RedNeath                                   #
+# Licensed under MIT (head to /LICENSE for more info) #
+#                                                     #
+# Copyright © 2022 Kamigami no Tanjou                 #
+#######################################################
+
 #The goal of ths python script is to test the insertion of data
 #in the API via POST, PUT, GET and DELETE requests 
 

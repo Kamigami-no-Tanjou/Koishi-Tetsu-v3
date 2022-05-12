@@ -5,6 +5,7 @@ package JDA_CLIENT;
  * It is raised whenever the processing of a command fails.
  * 
  * @author RedNeath
+ * Copyright © 2022 Kamigami no Tanjou
  */
 public class ProcessException extends TreatmentException {
 

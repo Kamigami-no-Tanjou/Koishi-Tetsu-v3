@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.Event;
  * customized commands, providing them a few essential methods and attributes.
  * 
  * @author RedNeath
+ * Copyright © 2022 Kamigami no Tanjou
  */
 public abstract class Command {
     /** The name of the command (what comes after the prefix). */

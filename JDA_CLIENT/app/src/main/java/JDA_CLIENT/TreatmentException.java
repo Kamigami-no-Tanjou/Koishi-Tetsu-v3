@@ -6,6 +6,7 @@ package JDA_CLIENT;
  * and processCommand.
  * 
  * @author RedNeath
+ * Copyright © 2022 Kamigami no Tanjou
  */
 public abstract class TreatmentException extends Exception {
     /**

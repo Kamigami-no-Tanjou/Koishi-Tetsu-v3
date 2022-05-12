@@ -8,6 +8,7 @@ import java.util.HashMap;
  * the bot, defines the dictionnary of commands, reads texts files and provides a few core methods.
  * 
  * @author RedNeath
+ * Copyright © 2022 Kamigami no Tanjou
  */
 public class Main {
     /** These constants defines the amount of places in the memory for all object types. */
