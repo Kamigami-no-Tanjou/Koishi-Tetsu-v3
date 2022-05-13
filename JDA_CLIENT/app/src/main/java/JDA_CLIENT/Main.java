@@ -1,8 +1,16 @@
 package JDA_CLIENT;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
-import JDA_CLIENT.COMMANDS.CustomCommand;
+import javax.security.auth.login.LoginException;
+
+import JDA_CLIENT.COMMANDS.*;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 /**
  * This class is the heart of the bot.
@@ -12,7 +20,7 @@ import JDA_CLIENT.COMMANDS.CustomCommand;
  * @author RedNeath
  * Copyright © 2022 Kamigami no Tanjou
  */
-public class Main {
+public class Main extends ListenerAdapter {
     /** These constants defines the amount of places in the memory for all object types. */
     public static final int MAX_SERVERS_IN_MEMORY = 50;
     public static final int MAX_USERS_IN_MEMORY = 50 * MAX_SERVERS_IN_MEMORY;
@@ -52,6 +60,16 @@ public class Main {
     //The initial size will have to be recalculated if the amount of servers in memory increases!!!
 
     /**
+     * We add to that another HashMap that will contain the whole list of commands, referrenced by
+     * name.
+     * As the amount of default commands will remain the same, we simply initialize it with a
+     * capacity matching the amount and with a loadFactor of 1, so that it stays as optimized as it
+     * can be.
+     * CHECK THIS WHEN YOU ADD A COMMAND!!!
+     */
+    private static HashMap<String, DefaultCommand> defaultCommands = new HashMap<String, DefaultCommand>(0, 1);
+
+    /**
      * Here we define all the languages available.
      */
     public static Language english;
@@ -65,6 +83,39 @@ public class Main {
             
             //At this point, the program will shut down and write the exception it recieved in the
             //log file. But this is yet to be developped.
+        }
+
+        
+        try {
+            //We build our JDA instance with the bot token (args[0]).
+            JDABuilder jda = JDABuilder.createDefault(args[0]);
+            
+            //We add the event listeners
+            jda.addEventListeners(new Main());
+
+            //Then we initialize the intents
+            Collection<GatewayIntent> intents = new HashSet<>();
+            intents.add(GatewayIntent.GUILD_MESSAGES);
+            intents.add(GatewayIntent.DIRECT_MESSAGES);
+            intents.add(GatewayIntent.GUILD_VOICE_STATES);
+            intents.add(GatewayIntent.GUILD_EMOJIS);
+            //intents.add(GatewayIntent.GUILD_BANS); Not necessary yet
+            //intents.add(GatewayIntent.GUILD_MEMBERS); Not necessary yet
+            //intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS); Not sure it will be necessary
+            //intents.add(GatewayIntent.GUILD_PRESENCES); Not sure it will be necessary
+
+            //We add the intents
+            jda.setEnabledIntents(intents);
+
+            //We add the bot activity
+            jda.setActivity(Activity.watching("a stone he'd like to eat"));
+
+            //And we finally build the bot
+            jda.build();
+            
+        } catch (LoginException e) {
+            
+            e.printStackTrace();
         }
     }
 }
