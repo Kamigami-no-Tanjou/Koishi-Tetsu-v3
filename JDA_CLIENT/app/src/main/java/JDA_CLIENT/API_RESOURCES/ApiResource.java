@@ -1,4 +1,4 @@
-package JDA_CLIENT;
+package JDA_CLIENT.API_RESOURCES;
 
 import com.github.cliftonlabs.json_simple.JsonObject;
 
@@ -17,4 +17,11 @@ public interface ApiResource {
      * @return The Json shaped object.
      */
     public abstract JsonObject getJson();
+
+    /**
+     * This method returns the ID of the object in the API.
+     * 
+     * @return An integer greater than 0.
+     */
+    public abstract int getID();
 }

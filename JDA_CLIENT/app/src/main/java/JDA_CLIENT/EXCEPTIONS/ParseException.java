@@ -1,4 +1,4 @@
-package JDA_CLIENT;
+package JDA_CLIENT.EXCEPTIONS;
 
 /**
  * This class is the Exception class for the command's args parsing.

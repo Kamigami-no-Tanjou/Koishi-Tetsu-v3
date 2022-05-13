@@ -2,6 +2,8 @@ package JDA_CLIENT;
 
 import java.io.FileNotFoundException;
 
+import JDA_CLIENT.EXCEPTIONS.ParseException;
+
 /**
  * This class will contain all the string messages for the given language. For now they are going
  * to be defined here, but the goal is to let the parseStrings method, called at the startoff, fill
@@ -16,7 +18,8 @@ public class Language {
     /**
      * These are the strings that will be initialized later on by the parseStrings() method.
      */
-    public String commandNameOrOutputTooShort = "Command name or output too short!";
+    public String commandNameOrOutputTooShort   = "Command name or output too short!";
+    public String commandDisabledTriggered      = "This command is currently disabled. To enable it, use the following command :";
 
     /**
      * This constructor will build a language and initialize its values by calling the parseStrings

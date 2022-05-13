@@ -1,4 +1,4 @@
-package JDA_CLIENT;
+package JDA_CLIENT.EXCEPTIONS;
 
 /**
  * This class is the general Exception class for the Command's treatment. It has two sub-classes :

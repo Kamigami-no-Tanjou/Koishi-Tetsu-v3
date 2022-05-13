@@ -2,6 +2,8 @@ package JDA_CLIENT;
 
 import java.util.HashMap;
 
+import JDA_CLIENT.COMMANDS.CustomCommand;
+
 /**
  * This class is the heart of the bot.
  * It contains all the memory arrays (which are static since it can't be instanciated), starts off
@@ -28,7 +30,7 @@ public class Main {
     //private static Server[] servers = new Server[MAX_SERVERS_IN_MEMORY];
     //private static User[] users = new User[MAX_USERS_IN_MEMORY];
     //private static ReactionRole[] reactionRoles = new ReactionRoles[MAX_REACROLES_IN_MEMORY];
-    //private static CustomCommand[] customCommands = new CustomCommand[MAX_CUSTOM_COMMANDS_IN_MEMORY];
+    private static CustomCommand[] customCommands = new CustomCommand[MAX_CUSTOM_COMMANDS_IN_MEMORY];
     //private static Chara[] characters = new Chara[MAX_CHARACTERS_IN_MEMORY];
     //private static Stat[] stats = new Stat[MAX_STATS_IN_MEMORY];
     //private static Warning[] warnings = new Warning[MAX_WARNINGS_IN_MEMORY];
