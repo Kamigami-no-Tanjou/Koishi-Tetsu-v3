@@ -33,7 +33,7 @@ dependencies {
     }
 
     // This is the JSON Parser I'll be using to deal with JSON in Java.
-    implementation 'com.github.cliftonlabs:json-simple:4.0.1'
+    implementation 'com.github.cliftonlabs:json-simple:2.3.0'
 }
 
 application {

@@ -6,10 +6,13 @@ import java.util.HashSet;
 
 import javax.security.auth.login.LoginException;
 
+import org.json.simple.JsonObject;
+
+import JDA_CLIENT.API_RESOURCES.*;
 import JDA_CLIENT.COMMANDS.*;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 /**
@@ -20,7 +23,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
  * @author RedNeath
  * Copyright © 2022 Kamigami no Tanjou
  */
-public class Main extends ListenerAdapter {
+public class Main {
     /** These constants defines the amount of places in the memory for all object types. */
     public static final int MAX_SERVERS_IN_MEMORY = 50;
     public static final int MAX_USERS_IN_MEMORY = 50 * MAX_SERVERS_IN_MEMORY;
@@ -35,7 +38,7 @@ public class Main extends ListenerAdapter {
      * These are the arrays of objects. Theye are cyclic and sorted by date of use. The indexes of
      * their elements are referenced in HashMaps for better efficiency.
      */
-    //private static Server[] servers = new Server[MAX_SERVERS_IN_MEMORY];
+    private static Server[] servers = new Server[MAX_SERVERS_IN_MEMORY];
     //private static User[] users = new User[MAX_USERS_IN_MEMORY];
     //private static ReactionRole[] reactionRoles = new ReactionRoles[MAX_REACROLES_IN_MEMORY];
     private static CustomCommand[] customCommands = new CustomCommand[MAX_CUSTOM_COMMANDS_IN_MEMORY];
@@ -85,13 +88,13 @@ public class Main extends ListenerAdapter {
             //log file. But this is yet to be developped.
         }
 
-        
+        //JDA booting procedure        
         try {
             //We build our JDA instance with the bot token (args[0]).
-            JDABuilder jda = JDABuilder.createDefault(args[0]);
+            JDABuilder jdaBuilder = JDABuilder.createDefault(args[0]);
             
             //We add the event listeners
-            jda.addEventListeners(new Main());
+            jdaBuilder.addEventListeners(new CommandListener()); //The one listening the commands
 
             //Then we initialize the intents
             Collection<GatewayIntent> intents = new HashSet<>();
@@ -105,17 +108,78 @@ public class Main extends ListenerAdapter {
             //intents.add(GatewayIntent.GUILD_PRESENCES); Not sure it will be necessary
 
             //We add the intents
-            jda.setEnabledIntents(intents);
+            jdaBuilder.setEnabledIntents(intents);
 
             //We add the bot activity
-            jda.setActivity(Activity.watching("a stone he'd like to eat"));
+            jdaBuilder.setActivity(Activity.watching("a stone he'd like to eat"));
 
-            //And we finally build the bot
-            jda.build();
+            //We build the bot
+            JDA jda = jdaBuilder.build();
+            jda.awaitReady();
             
         } catch (LoginException e) {
             
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * This method aims to insert data in the API by using a POST HTTP method.
+     * Of course, it needs to use built-in Java HTTP functions, which can lead to some errors which
+     * will have to be treated by each call, as I can't seem to define a proper behavior for all of
+     * them.
+     * 
+     * @param url The URL address where the data needs to be posted (i.e. the type of data it is).
+     * @param Object The object to send to the API, in a json shape. It can be retrieved via the
+     *               getJson method of the ApiResource.
+     */
+    public static void ApiPost(String url, JsonObject Object) {
+        //To develop...
+    }
+
+    /**
+     * This method aims to retrieve data from the API by using a GET HTTP method.
+     * Of course, it needs to use built-in Java HTTP functions, which can lead to some errors that
+     * will have to be trated where this method is called, as I can't seem to define a proper
+     * behavior for all of them.
+     * 
+     * @param url The URL address where the data needs to be taken from (i.e. the type of data).
+     * 
+     * @return The resource asked in the URL in a json shape. It will then have to be parsed by the
+     *         ApiResource to be used as an object here.
+     */
+    public static JsonObject ApiGet(String url) {
+        //To developp...
+        return null;
+    }
+
+    /**
+     * Kinda similar to the ApiPost method, but only allows modification. This means the ID field
+     * will have to be removed from the JsonObject before to try and insert it.
+     * To insert the Object in the API, it will create a PUT HTTP request, that will be sent to the
+     * API via built-in Java HTTP functions.
+     * 
+     * @param url The URL address where the data needs to be put. (i.e. the type of data it is).
+     * @param Object The object to send to the API, in a json shape.
+     */
+    public static void ApiPut(String url, JsonObject Object) {
+        //To develop...
+    }
+
+    /**
+     * This method differs quite a bit from the others by different means :
+     * - First, it will only be used in the case of a user asking for the deletion of certain type
+     *   of data (which he is allowed to delete).
+     * - There is no question of json, as the object that is asked to be deleted is identified by
+     *   its ID, which is sepcified in the URL.
+     * - And because of that, we will need to generate a "unique" link for each demand. 
+     * 
+     * @param url The URL address where the data needs to be erased from.
+     */
+    public static void ApiDelete(String url) {
+        //To develop...
     }
 }

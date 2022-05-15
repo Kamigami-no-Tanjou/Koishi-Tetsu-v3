@@ -1,6 +1,6 @@
 package JDA_CLIENT.COMMANDS;
 
-import com.github.cliftonlabs.json_simple.JsonObject;
+import org.json.simple.JsonObject;
 
 import JDA_CLIENT.Main;
 import JDA_CLIENT.API_RESOURCES.ApiResource;
@@ -24,7 +24,7 @@ public class CustomCommand extends Command implements ApiResource {
      */
     public static final int INDEX = 2;
     /** This represents the ID assigned to this command in the API. */
-    private int ID;
+    private long ID;
     /** The output for this custom command */
     private String output;
     /** Whether the command is enabled or not. If it's not, the command won't be executed. */
@@ -116,7 +116,7 @@ public class CustomCommand extends Command implements ApiResource {
     }
 
     @Override
-    public int getID() {
+    public long getID() {
         return this.ID;
     }
 }

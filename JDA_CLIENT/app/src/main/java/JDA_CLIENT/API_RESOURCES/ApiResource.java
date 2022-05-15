@@ -1,6 +1,6 @@
 package JDA_CLIENT.API_RESOURCES;
 
-import com.github.cliftonlabs.json_simple.JsonObject;
+import org.json.simple.JsonObject;
 
 /**
  * This interface helps making sure that classes which are meant to be exported to the API have the
@@ -23,5 +23,5 @@ public interface ApiResource {
      * 
      * @return An integer greater than 0.
      */
-    public abstract int getID();
+    public abstract long getID();
 }
