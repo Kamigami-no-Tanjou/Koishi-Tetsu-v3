@@ -18,8 +18,10 @@ public class Language {
     /**
      * These are the strings that will be initialized later on by the parseStrings() method.
      */
-    public String commandNameOrOutputTooShort   = "Command name or output too short!";
-    public String commandDisabledTriggered      = "This command is currently disabled. To enable it, use the following command :";
+    public String commandNameOrOutputTooShort   = "The command name, or its output is too short! It's like you're telling me to eat the stone you have in your hand, while your hand is empty! :cry:";
+    public String commandDisabledTriggered      = "I can't do something you told me not to! :persevere: use the following command to enable the command:";
+    public String manageRolesPermissionLack     = "Wait, roles? What are roles? That wasn't what I signed for! :confounded: I need the permissions to manage them...";
+    public String moderateMembersPermissionLack = "Mmmh... Sure, but... I'd need you to allow me to moderate members :point_right::point_left:";
 
     /**
      * This constructor will build a language and initialize its values by calling the parseStrings

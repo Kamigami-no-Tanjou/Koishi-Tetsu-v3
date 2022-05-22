@@ -77,6 +77,12 @@ public class Main {
      */
     public static Language english;
 
+    /**
+     * Finally, we create a globally visible JDA object, which will contain the bot instance and
+     * allow back-end processes to access it easily (for checking the bot's permissions)
+     */
+    public static JDA jda;
+
     public static void main(String[] args) {
         try {
             //We try to get all the languages to initialize themselves...
@@ -114,7 +120,7 @@ public class Main {
             jdaBuilder.setActivity(Activity.watching("a stone he'd like to eat"));
 
             //We build the bot
-            JDA jda = jdaBuilder.build();
+            jda = jdaBuilder.build();
             jda.awaitReady();
             
         } catch (LoginException e) {

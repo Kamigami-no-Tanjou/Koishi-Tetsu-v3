@@ -1,10 +1,9 @@
-package JDA_CLIENT.COMMANDS;
+package JDA_CLIENT.API_RESOURCES;
 
 import org.json.simple.JsonObject;
 
 import JDA_CLIENT.Main;
-import JDA_CLIENT.API_RESOURCES.ApiResource;
-import JDA_CLIENT.API_RESOURCES.Command;
+import JDA_CLIENT.COMMANDS.Command;
 import JDA_CLIENT.EXCEPTIONS.ParseException;
 import JDA_CLIENT.EXCEPTIONS.ProcessException;
 import net.dv8tion.jda.api.events.Event;

@@ -1,7 +1,8 @@
-package JDA_CLIENT.API_RESOURCES;
+package JDA_CLIENT.COMMANDS;
 
 import java.util.concurrent.ExecutionException;
 
+import JDA_CLIENT.API_RESOURCES.ApiResource;
 import JDA_CLIENT.EXCEPTIONS.ParseException;
 import JDA_CLIENT.EXCEPTIONS.ProcessException;
 import JDA_CLIENT.EXCEPTIONS.TreatmentException;
