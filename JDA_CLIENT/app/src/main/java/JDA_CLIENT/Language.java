@@ -18,10 +18,14 @@ public class Language {
     /**
      * These are the strings that will be initialized later on by the parseStrings() method.
      */
-    public String commandNameOrOutputTooShort   = "The command name, or its output is too short! It's like you're telling me to eat the stone you have in your hand, while your hand is empty! :cry:";
-    public String commandDisabledTriggered      = "I can't do something you told me not to! :persevere: use the following command to enable the command:";
-    public String manageRolesPermissionLack     = "Wait, roles? What are roles? That wasn't what I signed for! :confounded: I need the permissions to manage them...";
-    public String moderateMembersPermissionLack = "Mmmh... Sure, but... I'd need you to allow me to moderate members :point_right::point_left:";
+    public String commandNameOrOutputTooShort       = "The command name, or its output is too short! It's like you're telling me to eat the stone you have in your hand, while your hand is empty! :cry:";
+    public String commandDisabledTriggered          = "I can't do something you told me not to! :persevere: use the following command to enable the command:";
+    public String manageRolesPermissionLack         = "Wait, roles? What are roles? That wasn't what I signed for! :confounded: I need your permission to manage them...";
+    public String memberManageRolesPermissionLack   = "I'm sorry, but I'm not too sure you were allowed to manage roles :eyes:";
+    public String moderateMembersPermissionLack     = "Mmmh... Sure, but... I'd need you to allow me to moderate members :point_right::point_left:";
+    public String memberManageServerPermissionLack  = "Stop right there! I can't let you do that, you need the permission to manage the server for that.";
+    public String mutedCooldownTooHigh              = "That long?! Best I can do is 672 hours...";
+    public String mutedCooldownTooLow               = "Hum, what? I... can't go against the time, I guess? Minimum value is 1 hour.";
 
     /**
      * This constructor will build a language and initialize its values by calling the parseStrings
@@ -48,5 +52,14 @@ public class Language {
      */
     public void parseStrings() throws FileNotFoundException, ParseException {
         //Will parse the lang.lang file and put the right messages in the right attribute.
+    }
+
+    /**
+     * A simple getter that allows us to know what the language is.
+     * 
+     * @return The two letters long name of the language. (ex. EN for English, SV for Swedish...)
+     */
+    public String getLang() {
+        return this.lang;
     }
 }
