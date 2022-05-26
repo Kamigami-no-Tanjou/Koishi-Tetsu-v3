@@ -392,9 +392,8 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
     }
 
     /**
-     * This method is a sort of extension of the setMutedCooldown one. It will simply do the same,
-     * but won't let the user chose the time he wants, as it is meant to put it back to the default
-     * value.
+     * This method will make a call to the setMutedCooldown method, with the default value for
+     * cooldown.
      * 
      * @param member The member at the origin of the change. If it is the bot itself, then this
      *               member should be : this.JDAServer.getSelfMember().
@@ -403,15 +402,75 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
      *                             the adequate permissions.
      */
     public void resetMutedCooldown(Member member) throws PermissionException {
+        setMutedCooldown(member, 2);
+    }
+
+    /**
+     * This method changes the server's maximum warning amount before the ban to the given value.
+     * Before we do that, we, of course, ensure that the member at the origin of the command has
+     * the adequate permissions, and that the given time is correct.
+     * Once changed to a lower amount, we'll have to check the whole list of warned members to
+     * make sure none of them gets away with more warnings than they should be allowed. This option
+     * will of course be deactivable.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * @param amount The new amount of warnings before the ban. Should be 1 or higher.
+     * @param retroActive Whether we should control the whole list if the amount is reduced.
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     * @throws IllegalArgumentException When the amount is below 1.
+     */
+    public void setMaxWarn(Member originMember, int amount, boolean retroActive) throws PermissionException, IllegalArgumentException {
+        int previousAmount;
+
         //First of all, we need to check the user's rights, to ensure he's allowed to permform this
         //action.
-        if (!member.hasPermission(Permission.MANAGE_SERVER)) {
+        if (!originMember.hasPermission(Permission.MANAGE_SERVER)) {
             throw new PermissionException(Main.english.memberManageServerPermissionLack);
         }
 
-        //Once this is done, we can simply set the cooldown time to the defualt value, which is 2
-        this.mutedCooldown = 2;
+        //As the amount needs to be greater than 0, and could be provided by a user, I need to make
+        //sure it is correct.
+        if (amount < 1) {
+            throw new IllegalArgumentException(Main.english.maxWarningAmountTooLow);
+        }
+
+        previousAmount = this.maxWarn;
+        this.maxWarn = amount;
+
+        //And finally, if the command is retroActive, and the amount lower than the previous one,
+        //we start a global checkup.
+        if (retroActive && previousAmount > amount) {
+            checkWarningAmounts();
+        }
     }
+
+    /**
+     * A simple getter that returns the amount of warnings before users gets banned.
+     * 
+     * @return The maximum amount of warning set for this server.
+     */
+    public int getmaxWarn() {
+        return this.maxWarn;
+    }
+
+    /**
+     * This method will make a call to the setMaxWarn method, with the default value for warnings.
+     * 
+     * @param member The member at the origin of the change. If it is the bot itself, then this
+     *               member should be : this.JDAServer.getSelfMember().
+     * @param retroActive Whether we should control the whole list if the amount is reduced.
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void resetMaxWarn(Member member, boolean retroActive) throws PermissionException {
+        setMaxWarn(member, 3, retroActive);
+    }
+
+    /* UTILITARY METHODS */
 
     /**
      * A utilitary method that helps the treatment and clarity of role adding methods.
@@ -467,6 +526,24 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
         for (long memberId : membersId) {
             this.JDAServer.removeRoleFromMember(this.JDAServer.getMemberById(memberId), role);
         }
+    }
+
+    /**
+     * This method makes sure every user respects the amount of warnings by banning the ones that
+     * don't. It isn't particularly efficient, and because of that, it would be better not to call
+     * it too often.
+     * 
+     * @throws PermissionException When the bot isn't allowed to ban members
+     */
+    private void checkWarningAmounts() throws PermissionException {
+        if (!this.JDAServer.getSelfMember().hasPermission(Permission.BAN_MEMBERS)) {
+            throw new PermissionException(Main.english.banMembersPermissonLack);
+        }
+
+        //1. Load all the Warnings of the server in the memory and in a local list
+        //  -> Prerequisites : Warning class & an API request to retrieve all of them
+        //2. For each of them, check the amount, to see if it is higher than allowed
+        //3. Ban the members with too much warnings and add them to the banned list
     }
 
     @Override

@@ -37,8 +37,10 @@ serv_post_args = reqparse.RequestParser()
 serv_post_args.add_argument("ID", type=int, required=True)
 serv_post_args.add_argument("mutedUsers", type = int, default=[], action='append')
 serv_post_args.add_argument("mutedRole", type=int, default=0)
+serv_post_args.add_argument("mutedCooldown", type=int, default=2)
 serv_post_args.add_argument("maxWarn", type=int, default=3)
 serv_post_args.add_argument("cooldown", type=int, default=150)
+serv_post_args.add_argument("disabledCommands", type=str, default=[], action='append')
 serv_post_args.add_argument("banned", type=int, default=[], action='append')
 serv_post_args.add_argument("warnings", type=int, default=[], action='append')
 serv_post_args.add_argument("prefix", type=str, default='kt')
@@ -50,8 +52,10 @@ serv_post_args.add_argument("customCommands", type=int, default=[], action='appe
 serv_put_args = reqparse.RequestParser()
 serv_put_args.add_argument("mutedUsers", type=int, action='append')
 serv_put_args.add_argument("mutedRole", type=int)
+serv_put_args.add_argument("mutedCooldown", type=int)
 serv_put_args.add_argument("maxWarn", type=int)
 serv_put_args.add_argument("cooldown", type=int)
+serv_put_args.add_argument("disabledCommands", type=str, action='append')
 serv_put_args.add_argument("banned", type=int, action='append')
 serv_put_args.add_argument("warnings", type=int, action='append')
 serv_put_args.add_argument("prefix", type=str)
@@ -66,6 +70,7 @@ with open(SERVERS, "r") as rf:
 #request parser for a POST request on the user list :
 user_post_args = reqparse.RequestParser()
 user_post_args.add_argument("ID", type=int, required=True)
+user_post_args.add_argument("language", type=str, default="EN")
 user_post_args.add_argument("servers", type=int, default=[], action='append')
 user_post_args.add_argument("characters", type=int, default=[], action='append')
 user_post_args.add_argument("exp", type=int, default=0)
@@ -73,6 +78,7 @@ user_post_args.add_argument("birthdate", type=str, default="")
 
 #request parser for a PUT request on the user list :
 user_put_args = reqparse.RequestParser()
+user_put_args.add_argument("language", type=str)
 user_put_args.add_argument("servers", type=int, action='append')
 user_put_args.add_argument("characters", type=int, action='append')
 user_put_args.add_argument("exp", type=int)
@@ -102,11 +108,13 @@ with open(REACTION_ROLES, "r") as rf:
 commands_post_args = reqparse.RequestParser()
 commands_post_args.add_argument("name", type=str, required=True)
 commands_post_args.add_argument("output", type=str, required=True)
+commands_post_args.add_argument("enabled", type=int, default=1)
 
 #request parser for a PUT request on the command list :
 commands_put_args = reqparse.RequestParser()
 commands_put_args.add_argument("name", type=str)
 commands_put_args.add_argument("output", type=str)
+commands_put_args.add_argument("enabled", type=int)
 
 #We create a list of commands and add the content of the ./DATA/COMMANDS.json to it.
 with open(COMMANDS, "r") as rf:
@@ -161,6 +169,13 @@ with open(STATS, "r") as rf:
 #request parser for a POST request on the warnings list :
 warnings_post_args = reqparse.RequestParser()
 warnings_post_args.add_argument("user", type=int, required=True)
+warnings_post_args.add_argument("amount", type=int, default=1)
+warnings_post_args.add_argument("lastUpdate", type=int, default=0)
+
+#request parser for a PUT request on the warnings list :
+warnings_put_args = reqparse.RequestParser()
+warnings_put_args.add_argument("amount", type=int)
+warnings_put_args.add_argument("lastUpdate", type=int)
 
 #We create a list of warnings and add the content of the ./DATA/WARNINGS.json to it.
 with open(WARNINGS, "r") as rf :
@@ -310,6 +325,10 @@ def edit_server(i, args) :
 	if args["mutedRole"] != None :
 		servers[i]["mutedRole"] = args["mutedRole"]
 
+	#if there is a value in the mutedCooldown field
+	if args["mutedCooldown"] != None :
+		servers[i]["mutedCooldown"] = args["mutedCooldown"]
+
 	#if there is a value in the maxWarn field
 	if args["maxWarn"] != None : 
 		servers[i]["maxWarn"] = args["maxWarn"]
@@ -317,6 +336,10 @@ def edit_server(i, args) :
 	#if there is a value in the cooldown field
 	if args["cooldown"] != None :
 		servers[i]["cooldown"] = args["cooldown"]
+
+	#if there is a value in the disabledCommands field
+	if args["disabledCommands"] != None :
+		servers[i]["disabledCommands"].extend(args["disabledCommands"])
 
 	#if there is a value in the banned field
 	if args["banned"] != None :
@@ -351,6 +374,10 @@ def edit_server(i, args) :
 #I'm also very likely to create methods that will edit several predefined parameters
 #at once, as it would reduce the amount of simultaneous requests to the API. 
 def edit_user(i, args) :
+	#if there is a value in the language field
+	if args["language"] != None : 
+		users[i]["language"] = args["language"]
+
 	#if there is a value in the servers field
 	if args["servers"] != None :
 		users[i]["servers"].extend(args["servers"])
@@ -404,6 +431,10 @@ def edit_command(i, args) :
 	#if there is a value in the output field
 	if args["output"] != None : 
 		commands[i]["output"] = args["output"]
+
+	#if there is a value in the enabled field
+	if args["enabled"] != None : 
+		commands[i]["enabled"] = args["enabled"]
 
 #This method is pretty much here because I thought it would be ugly to leave an
 #endless list of 'if' in the Character put method.
@@ -474,6 +505,23 @@ def edit_stat(i, args) :
 	#if there is a value in the value field
 	if args["value"] != None : 
 		stats[i]["value"] = args["value"]
+
+#This method is pretty much here because I thought it would be ugly to leave an
+#endless list of 'if' in the Warning put method.
+#At the moment, I can't think of a real better way to do that, but it might be solved
+#in the near future, via an HTTP request that will allow the modification of only one
+#parameter. This way we will only have to create a switch/case to check which parameter
+#needs to be modified, and we won't have to deal with JSON parsing in Java anymore.
+#I'm also very likely to create methods that will edit several predefined parameters
+#at once, as it would reduce the amount of simultaneous requests to the API. 
+def edit_warning(i, args) :
+	#if there is a value in the amount field
+	if args["amount"] != None :
+		stats[i]["amount"] = args["amount"]
+
+	#if there is a value in the lastUpdate field
+	if args["lastUpdate"] != None : 
+		stats[i]["lastUpdate"] = args["lastUpdate"]
 
 #-----------------------------------
 # Controllers to handle the requests
@@ -1040,7 +1088,7 @@ class Stat(Resource) :
 		#above, and we parse them if they do.
 		args = stats_put_args.parse_args()
 
-		#Here we look at which args have been edited, and we change their value in the character
+		#Here we look at which args have been edited, and we change their value in the stat
 		edit_stat(i, args)
 
 		#We re-write the whole JSON file to store the freshly edited data
@@ -1109,14 +1157,13 @@ class Warnings(Resource) :
 
 api.add_resource(Warnings, "/warnings")
 
-#We define the controller for GET and DELETE resquests, at the address
+#We define the controller for GET, PUT and DELETE resquests, at the address
 #/warning/<int:warning_id>. The warning ID will be arbitrarily provided by the
 #API itself.
-#It will only allow the deletion and the data retrieval of a warning, as it
-#isn't meant to be editable.
+#It will allow the deletion, the data retrieval and the edition of a warning.
 #-------
 # NOTE :
-#The GET method will return the whole JSON part of a stat. It might be
+#The GET method will return the whole JSON part of a warning. It might be
 #a bit bothering for data retrieval since the bot will be made in Java
 #and Java doesn't read Json natively. I might consider developping other
 #controllers that will only return the desired value in the future.
@@ -1128,6 +1175,31 @@ class Warning(Resource) :
 		i = abort_if_warning_id_doesnt_exist(warning_id)
 
 		#Then we return the JSON part for this exact warning, along with a 200 HTTP code.
+		return warnings[i], 200
+
+	def put(self, warning_id) :
+		#We cancel the request directly if the warning isn't in the list. That will ensure we
+		#do not consume operations to verify the request's correctness if it can only end
+		#aborted.
+		#On the other hand, if the warning is effectively in the list, we get its index back.
+		i = abort_if_warning_id_doesnt_exist(warning_id)
+
+		#Then we verirfy the args of the PUT method, to ensure they respect the parser defined
+		#above, and we parse them if they do.
+		args = warnings_put_args.parse_args()
+
+		#Here we look at which args have been edited, and we change their value in the warning
+		edit_warning(i, args)
+
+		#We re-write the whole JSON file to store the freshly edited data
+		#WARNING!! This is highly unefficient. Since this bot is mostly only going to be on
+		#one or two servers, it is not a real problem. However, if the amount of servers it
+		#gets to be on increases a lot, I will have to consider changing the export of data
+		#to a propoer database!!
+		with open(WARNINGS, "w") as f :
+			json.dump(warnings, f)
+
+		#Finally, we return the warning modified, along with a 200 HTTP code.
 		return warnings[i], 200
 
 	def delete(self, warning_id) :

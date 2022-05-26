@@ -26,6 +26,8 @@ public class Language {
     public String memberManageServerPermissionLack  = "Stop right there! I can't let you do that, you need the permission to manage the server for that.";
     public String mutedCooldownTooHigh              = "That long?! Best I can do is 672 hours...";
     public String mutedCooldownTooLow               = "Hum, what? I... can't go against the time, I guess? Minimum value is 1 hour.";
+    public String maxWarningAmountTooLow            = "If your goal is to ban everyone, this is not the right command. If it's not then you'll need the amount to be at least 1.";
+    public String banMembersPermissonLack           = "I could try throwing stones at them so that they would run away from here, but to make it more efficient, I would need you to allow me to ban members...";
 
     /**
      * This constructor will build a language and initialize its values by calling the parseStrings

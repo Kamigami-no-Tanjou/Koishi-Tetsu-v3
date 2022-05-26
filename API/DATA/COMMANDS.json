@@ -1,1 +1,8 @@
-[{"ID": 0, "name": "test", "output": "Hello_world"}]
+[
+    {
+        "ID": 0,
+        "name": "test",
+        "output": "Hello_world",
+        "enabled" : 1
+    }
+]
