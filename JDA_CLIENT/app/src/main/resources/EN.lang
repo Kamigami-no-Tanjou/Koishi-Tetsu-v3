@@ -9,3 +9,14 @@ is another \: key. #You can also comment lines with a # key.
 
 #Also, if you want to add : and # keys in the text, you will need to put a \ just before, so it
 #won't be counted as a key.
+
+commandNameOrOutputTooShort:The command name, or its output is too short! It's like you're telling me to eat the stone you have in your hand, while your hand is empty! \:cry\:
+commandDisabledTriggered:I can't do something you told me not to! \:persevere\: use the following command to enable the command\:
+manageRolesPermissionLack:Wait, roles? What are roles? That wasn't what I signed for! \:confounded\: I need your permission to manage them...
+memberManageRolesPermissionLack:I'm sorry, but I'm not too sure you were allowed to manage roles \:eyes\:
+moderateMembersPermissionLack:Mmmh... Sure, but... I'd need you to allow me to moderate members \:point_right\:\:point_left\:
+memberManageServerPermissionLack:Stop right there! I can't let you do that, you need the permission to manage the server for that.
+mutedCooldownTooHigh:That long?! Best I can do is 672 hours...
+mutedCooldownTooLow:Hum, what? I... can't go against the time, I guess? Minimum value is 1 hour.
+maxWarningAmountTooLow:If your goal is to ban everyone, this is not the right command. If it's not then you'll need the amount to be at least 1.
+banMembersPermissonLack:I could try throwing stones at them so that they would run away from here, but to make it more efficient, I would need you to allow me to ban members...

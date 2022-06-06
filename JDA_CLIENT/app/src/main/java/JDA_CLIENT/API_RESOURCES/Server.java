@@ -69,12 +69,12 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
 
         //And we initialize the attributes with default values.
         this.mutedUsers = new ArrayList<Long>();
-        this.mutedCooldown = 2;
-        this.maxWarn = 3;
-        this.cooldown = 150;
+        this.mutedCooldown = Main.serverDefaultMutedCooldown;
+        this.maxWarn = Main.serverDefaultMaxWarn;
+        this.cooldown = Main.serverDefualtCooldown;
         this.banned = new ArrayList<Long>();
         this.warnings = new ArrayList<Long>();
-        this.prefix = "kt";
+        this.prefix = Main.serverDefaultPrefix;
         this.autoRoles = new ArrayList<Role>();
         this.reactionRoles = new ArrayList<Long>();
         this.customCommands = new ArrayList<Long>();
@@ -402,13 +402,13 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
      *                             the adequate permissions.
      */
     public void resetMutedCooldown(Member member) throws PermissionException {
-        setMutedCooldown(member, 2);
+        setMutedCooldown(member, Main.serverDefaultMutedCooldown);
     }
 
     /**
      * This method changes the server's maximum warning amount before the ban to the given value.
      * Before we do that, we, of course, ensure that the member at the origin of the command has
-     * the adequate permissions, and that the given time is correct.
+     * the adequate permissions, and that the given amount is correct.
      * Once changed to a lower amount, we'll have to check the whole list of warned members to
      * make sure none of them gets away with more warnings than they should be allowed. This option
      * will of course be deactivable.
@@ -467,7 +467,92 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
      *                             the adequate permissions.
      */
     public void resetMaxWarn(Member member, boolean retroActive) throws PermissionException {
-        setMaxWarn(member, 3, retroActive);
+        setMaxWarn(member, Main.serverDefaultMaxWarn, retroActive);
+    }
+
+    /**
+     * A simple getter that returns the amount of time before users loses one warning.
+     * 
+     * @return The cooldown in days for warnings to reduce.
+     */
+    public int getCooldown() {
+        return this.cooldown;
+    }
+
+    /**
+     * This method changes the server's cooldown before the warned users loses one warn. Before we
+     * do that, we, of course, ensure that the member at the origin of the command has the adequate
+     * permissions, and that the given time is correct.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * @param time The new amount of days before the reduction of warnings. If it is below 1, the
+     *             disableCooldown() method will be called instead (puting at 0).
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void setCooldown(Member originMember, int time) throws PermissionException {
+        //So first we check the time, in order not to make the member verifications twice.
+        if (time < 1) {
+            disableCooldown(originMember);
+
+        //Otherwise we check the member's rights and act in function.
+        } else {
+            if (!originMember.hasPermission(Permission.MANAGE_SERVER)) {
+                throw new PermissionException(Main.english.memberManageServerPermissionLack);
+            }
+
+            this.cooldown = time;
+        }
+    }
+
+    /**
+     * This method will make a call to the setCooldown method, with the default value for cooldown.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void resetCooldown(Member originMember) throws PermissionException {
+        setCooldown(originMember, Main.serverDefualtCooldown);
+    }
+
+    /**
+     * This method disables the server's cooldown before the warned users loses one warn. Before we
+     * do that, we, of course, ensure that the member at the origin of the command has the adequate
+     * permissions.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void disableCooldown(Member originMember) throws PermissionException {
+        //First we check that the member's rigths are adequate
+        if (!originMember.hasPermission(Permission.MANAGE_SERVER)) {
+            throw new PermissionException(Main.english.memberManageServerPermissionLack);
+        }
+
+        this.cooldown = 0;
+    }
+
+    /**
+     * This method will make a call to the resetCooldown method. It's not yet particularly useful
+     * but it could become useful in the future if I decide to disable/enable the cooldown via a
+     * boolean attribute instead of setting the cooldown value.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void enableCooldown(Member originMember) throws PermissionException {
+        resetCooldown(originMember);
     }
 
     /* UTILITARY METHODS */

@@ -63,6 +63,14 @@ public class Main {
     //The initial size will have to be recalculated if the amount of servers in memory increases!!!
 
     /**
+     * These are the default values for a server.
+     */
+    public static long serverDefaultMutedCooldown = 2;
+    public static int serverDefaultMaxWarn = 3;
+    public static int serverDefualtCooldown = 150;
+    public static String serverDefaultPrefix = "kt";
+
+    /**
      * We add to that another HashMap that will contain the whole list of commands, referrenced by
      * name.
      * As the amount of default commands will remain the same, we simply initialize it with a
