@@ -150,7 +150,7 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
             if (this.JDAServer.getSelfMember().hasPermission(Permission.MANAGE_ROLES)) {
                 this.JDAServer.addRoleToMember(affectedMember, mutedRole);
             } else {
-                throw new PermissionException(Main.english.manageRolesPermissionLack);
+                throw new PermissionException(Main.english.selfManageRolesPermissionLack);
             }
         }
 
@@ -159,7 +159,7 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
         //In order to do that, we simply check the bot's permissions and throw a PermissionException
         //if it doesn't have the required permissions.
         if (!this.JDAServer.getSelfMember().hasPermission(Permission.MODERATE_MEMBERS)) {
-            throw new PermissionException(Main.english.moderateMembersPermissionLack);
+            throw new PermissionException(Main.english.selfModerateMembersPermissionLack);
         }
 
         //This could be in a else statement, but as the throw Exception makes the method return, it
@@ -211,14 +211,14 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
             if (this.JDAServer.getSelfMember().hasPermission(Permission.MANAGE_ROLES)) {
                 this.JDAServer.removeRoleFromMember(affectedMember, mutedRole);
             } else {
-                throw new PermissionException(Main.english.manageRolesPermissionLack);
+                throw new PermissionException(Main.english.selfManageRolesPermissionLack);
             }
         }
 
         //Now that the role is removed if there was one, we need to revoque the user's timeout.
         //Let's check permissions once again and then act if possible :
         if (!this.JDAServer.getSelfMember().hasPermission(Permission.MODERATE_MEMBERS)) {
-            throw new PermissionException(Main.english.moderateMembersPermissionLack);
+            throw new PermissionException(Main.english.selfModerateMembersPermissionLack);
         }
 
         //Finally, we remove the user's timeout.
@@ -555,6 +555,159 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
         resetCooldown(originMember);
     }
 
+    /**
+     * This method will send back the whole list of banned members on this server.
+     * 
+     * @return An ArrayList of Long objects, containing all the IDs of banned members.
+     */
+    public ArrayList<Long> getBannedList() {
+        return this.banned;
+    }
+
+    /**
+     * This method is an override of the ArrayList get(int index) method.
+     * 
+     * @param index The index of the object to search in the list.
+     * 
+     * @return The long ID of the member at the index given, or 0 if there was none.
+     */
+    public long getBannedMember(int index) {
+        long memberId;
+        try {
+            memberId = this.banned.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            memberId = 0;
+        }
+
+        return memberId;
+    }
+
+    /**
+     * This method is an override of the ArrayList's indexOf(Object o). It aims to return the index
+     * of the given element in the list.
+     * 
+     * @param memberId The ID (as a long) of the member to look for.
+     * 
+     * @return The index of the given element or -1 if it is not found in the list.
+     */
+    public int getBannedMemberIndex(long memberId) {
+        return this.banned.indexOf(memberId);
+    }
+
+    /**
+     * This method is an override of the ArrayList's indexOf(Object o). It aims to return the index
+     * of the given element in the list.
+     * 
+     * @param member The member to look for.
+     * 
+     * @return The index of the given element or -1 if it is not found in the list.
+     */
+    public int getBannedMemberIndex(Member member) {
+        return this.banned.indexOf(member.getIdLong());
+    }
+
+    /**
+     * This method's purpose is to tell whether the given element appears in the list ; and is
+     * therefore banned or not. It is essentially an override of the ArrayList's contains(Object o)
+     * method.
+     * 
+     * @param memberId The ID (as a long) of the member to look for.
+     * 
+     * @return True if the ID is found in the list, else false.
+     */
+    public boolean isMemberBanned(long memberId) {
+        return this.banned.contains(memberId);
+    }
+
+    /**
+     * This method's purpose is to tell whether the given element appears in the list ; and is
+     * therefore banned or not. It is essentially an override of the ArrayList's contains(Object o)
+     * method.
+     * 
+     * @param memberId The member to look for.
+     * 
+     * @return True if the member's ID is found in the list, else false.
+     */
+    public boolean isMemberBanned(Member member) {
+        return this.banned.contains(member.getIdLong());
+    }
+
+    /**
+     * This method will add a member to the banned members list. It'll check the rights of the
+     * member that asked for it to make sure he/she is allowed to do such a thing.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * @param memberId The ID in a long shape of the member to add to the banned list.
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void addBannedMember(Member originMember, long memberId) throws PermissionException {
+        if (!originMember.hasPermission(Permission.BAN_MEMBERS)) {
+            throw new PermissionException(Main.english.memberBanMembersPermissionLack);
+        }
+
+        this.banned.add(memberId);
+    }
+
+    /**
+     * This method will add a member to the banned members list. It'll check the rights of the
+     * member that asked for it to make sure he/she is allowed to do such a thing.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * @param member The member member to add to the banned list.
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void addBannedMember(Member originMember, Member member) throws PermissionException {
+        if (!originMember.hasPermission(Permission.BAN_MEMBERS)) {
+            throw new PermissionException(Main.english.memberBanMembersPermissionLack);
+        }
+
+        this.banned.add(member.getIdLong());
+    }
+
+    /**
+     * This method will remove a member from the banned members list. It'll check the rights of the
+     * member that asked for it to make sure he/she is allowed to do such a thing.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * @param memberId The ID in a long shape of the member to remove from the banned list.
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void removeBannedMember(Member originMember, long memberId) throws PermissionException {
+        if (!originMember.hasPermission(Permission.MODERATE_MEMBERS)) {
+            throw new PermissionException(Main.english.memberModerateMembersPermissionLack);
+        }
+
+        this.banned.remove(memberId);
+    }
+
+    /**
+     * This method will remove a member from the banned members list. It'll check the rights of the
+     * member that asked for it to make sure he/she is allowed to do such a thing.
+     * 
+     * @param originMember The member at the origin of the change. If it is the bot itself, then
+     *                     this member should be : this.JDAServer.getSelfMember().
+     * @param member The member to remove from the banned list.
+     * 
+     * @throws PermissionException When the member who is at the origin of the call doesn't have
+     *                             the adequate permissions.
+     */
+    public void removeBannedMember(Member originMember, Member member) throws PermissionException {
+        if (!originMember.hasPermission(Permission.MODERATE_MEMBERS)) {
+            throw new PermissionException(Main.english.memberModerateMembersPermissionLack);
+        }
+
+        this.banned.remove(member.getIdLong());
+    }
+
     /* UTILITARY METHODS */
 
     /**
@@ -567,7 +720,7 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
      */
     private void addRoleToMembers(Collection<Long> membersId, Role role) throws PermissionException {
         if (!this.JDAServer.getSelfMember().hasPermission(Permission.MANAGE_ROLES)) {
-            throw new PermissionException(Main.english.manageRolesPermissionLack);
+            throw new PermissionException(Main.english.selfManageRolesPermissionLack);
         }
 
         for (long memberId : membersId) {
@@ -586,7 +739,7 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
      */
     private void exchangeRoleOnMembers(Collection<Long> membersId, Role previousRole, Role newRole) throws PermissionException {
         if (!this.JDAServer.getSelfMember().hasPermission(Permission.MANAGE_ROLES)) {
-            throw new PermissionException(Main.english.manageRolesPermissionLack);
+            throw new PermissionException(Main.english.selfManageRolesPermissionLack);
         }
 
         for (long memberId : membersId) {
@@ -605,7 +758,7 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
      */
     private void removeRoleFromMembers(Collection<Long> membersId, Role role) throws PermissionException {
         if (!this.JDAServer.getSelfMember().hasPermission(Permission.MANAGE_ROLES)) {
-            throw new PermissionException(Main.english.manageRolesPermissionLack);
+            throw new PermissionException(Main.english.selfManageRolesPermissionLack);
         }
 
         for (long memberId : membersId) {
@@ -622,7 +775,7 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
      */
     private void checkWarningAmounts() throws PermissionException {
         if (!this.JDAServer.getSelfMember().hasPermission(Permission.BAN_MEMBERS)) {
-            throw new PermissionException(Main.english.banMembersPermissonLack);
+            throw new PermissionException(Main.english.selfBanMembersPermissonLack);
         }
 
         //1. Load all the Warnings of the server in the memory and in a local list

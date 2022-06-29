@@ -18,16 +18,18 @@ public class Language {
     /**
      * These are the strings that will be initialized later on by the parseStrings() method.
      */
-    public String commandNameOrOutputTooShort       = "The command name, or its output is too short! It's like you're telling me to eat the stone you have in your hand, while your hand is empty! :cry:";
-    public String commandDisabledTriggered          = "I can't do something you told me not to! :persevere: use the following command to enable the command:";
-    public String manageRolesPermissionLack         = "Wait, roles? What are roles? That wasn't what I signed for! :confounded: I need your permission to manage them...";
-    public String memberManageRolesPermissionLack   = "I'm sorry, but I'm not too sure you were allowed to manage roles :eyes:";
-    public String moderateMembersPermissionLack     = "Mmmh... Sure, but... I'd need you to allow me to moderate members :point_right::point_left:";
-    public String memberManageServerPermissionLack  = "Stop right there! I can't let you do that, you need the permission to manage the server for that.";
-    public String mutedCooldownTooHigh              = "That long?! Best I can do is 672 hours...";
-    public String mutedCooldownTooLow               = "Hum, what? I... can't go against the time, I guess? Minimum value is 1 hour.";
-    public String maxWarningAmountTooLow            = "If your goal is to ban everyone, this is not the right command. If it's not then you'll need the amount to be at least 1.";
-    public String banMembersPermissonLack           = "I could try throwing stones at them so that they would run away from here, but to make it more efficient, I would need you to allow me to ban members...";
+    public String commandNameOrOutputTooShort           = "The command name, or its output is too short! It's like you're telling me to eat the stone you have in your hand, while your hand is empty! :cry:";
+    public String commandDisabledTriggered              = "I can't do something you told me not to! :persevere: use the following command to enable the command:";
+    public String selfManageRolesPermissionLack         = "Wait, roles? What are roles? That wasn't what I signed for! :confounded: I need your permission to manage them...";
+    public String memberManageRolesPermissionLack       = "I'm sorry, but I'm not too sure you were allowed to manage roles :eyes:";
+    public String selfModerateMembersPermissionLack     = "Mmmh... Sure, but... I'd need you to allow me to moderate members :point_right::point_left:";
+    public String memberManageServerPermissionLack      = "Stop right there! I can't let you do that, you need the permission to manage the server for that.";
+    public String mutedCooldownTooHigh                  = "That long?! Best I can do is 672 hours...";
+    public String mutedCooldownTooLow                   = "Hum, what? I... can't go against the time, I guess? Minimum value is 1 hour.";
+    public String maxWarningAmountTooLow                = "If your goal is to ban everyone, this is not the right command. If it's not then you'll need the amount to be at least 1.";
+    public String selfBanMembersPermissonLack           = "I could try throwing stones at them so that they would run away from here, but to make it more efficient, I would need you to allow me to ban members...";
+    public String memberBanMembersPermissionLack        = "Hold on! Wait a minute... You ain't supposed to be banning members, do you? :unamused:";
+    public String memberModerateMembersPermissionLack   = "I'm not to sure you've been allowed to moderate members... :unamused:";
 
     /**
      * This constructor will build a language and initialize its values by calling the parseStrings
