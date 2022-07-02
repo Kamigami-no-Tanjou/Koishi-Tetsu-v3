@@ -53,13 +53,13 @@ public class Main {
      * with their index (as the value) in their respectiv array. As a result, these are all
      * Integer/Integer HashMaps.
      */
-    private static HashMap<Integer, Integer> serverIndexes      = new HashMap<Integer, Integer>(8, loadFactor);
-    private static HashMap<Integer, Integer> userIndexes        = new HashMap<Integer, Integer>(196, loadFactor);
-    private static HashMap<Integer, Integer> reacRolesIndexes   = new HashMap<Integer, Integer>(40, loadFactor);
-    private static HashMap<Integer, Integer> commandsIndexes    = new HashMap<Integer, Integer>(40, loadFactor);
-    private static HashMap<Integer, Integer> characterIndexes   = new HashMap<Integer, Integer>(196, loadFactor);
-    private static HashMap<Integer, Integer> statsIndexes       = new HashMap<Integer, Integer>(586, loadFactor);
-    private static HashMap<Integer, Integer> warningsIndexes    = new HashMap<Integer, Integer>(196, loadFactor);
+    public static HashMap<Integer, Integer> serverIndexes      = new HashMap<Integer, Integer>(8, loadFactor);
+    public static HashMap<Integer, Integer> userIndexes        = new HashMap<Integer, Integer>(196, loadFactor);
+    public static HashMap<Integer, Integer> reacRolesIndexes   = new HashMap<Integer, Integer>(40, loadFactor);
+    public static HashMap<Integer, Integer> commandsIndexes    = new HashMap<Integer, Integer>(40, loadFactor);
+    public static HashMap<Integer, Integer> characterIndexes   = new HashMap<Integer, Integer>(196, loadFactor);
+    public static HashMap<Integer, Integer> statsIndexes       = new HashMap<Integer, Integer>(586, loadFactor);
+    public static HashMap<Integer, Integer> warningsIndexes    = new HashMap<Integer, Integer>(196, loadFactor);
     //The initial size will have to be recalculated if the amount of servers in memory increases!!!
 
     /**

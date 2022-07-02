@@ -52,6 +52,19 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
     /** This is the list of custom commands linked to this server. Can be empty. */
     private ArrayList<Long> customCommands;
 
+    /**
+     * This is the list of warning objects for this server. It is not necessarily synchronized with
+     * the warnings array list, which is why it has to be manipulated carefully.
+     * The objects within this list are the same as the ones in the memory (in the Main class), as
+     * they will contain their reference. Therefore, if we want to delete an item in memory (which
+     * occurs when we load a new one), we NEED to call the method vanishWarning(int index), that
+     * will destroy the reference to this object by removing it's use in this list.
+     * 
+     * Note that the call to the afore mentioned method will NOT affect the warnings array list. It
+     * simply aims to eliminate the object from the memory, not to change the data.
+     */
+    //private ArrayList<Warning> dynWarnings;
+
     /** This is the Guild instance it is linked to. */
     private Guild JDAServer;
 
@@ -624,7 +637,7 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
      * therefore banned or not. It is essentially an override of the ArrayList's contains(Object o)
      * method.
      * 
-     * @param memberId The member to look for.
+     * @param member The member to look for.
      * 
      * @return True if the member's ID is found in the list, else false.
      */
@@ -708,6 +721,273 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
         this.banned.remove(member.getIdLong());
     }
 
+    /**
+     * This method will send back the whole list of warnings for this server.
+     * 
+     * @return An ArrayList of Long objects, containing all the IDs of the warnings.
+     */
+    public ArrayList<Long> getWarningList() {
+        return this.warnings;
+    }
+
+    /**
+     * This method is an override of the ArrayList get(int index) method.
+     * 
+     * @param index The index of the object to search in the list.
+     * 
+     * @return The long ID of the warning at the index given, or 0 if there was none.
+     */
+    public long getWarning(int index) {
+        long warningId;
+        try {
+            warningId = this.warnings.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            warningId = 0;
+        }
+
+        return warningId;
+    }
+
+    /**
+     * This method is an override of the ArrayList's indexOf(Object o). It aims to return the index
+     * of the given element in the list.
+     * 
+     * @param warningId The ID (as a long) of the warning to look for.
+     * 
+     * @return The index of the given element or -1 if it is not found in the list.
+     */
+    public int getWarningIndex(long warningId) {
+        return this.warnings.indexOf(warningId);
+    }
+
+    ///** TO UNCOMMENT WHEN WARNINGS DONE!
+    // * This method is an override of the ArrayList's indexOf(Object o). It aims to return the index
+    // * of the given element in the list.
+    // * 
+    // * @param warning The warning to look for.
+    // * 
+    // * @return The index of the given element or -1 if it is not found in the list.
+    // */
+    //public int getWarningIndex(Warning warning) {
+    //    return this.warnings.indexOf(warning.getId());
+    //}
+
+    /**
+     * This method's purpose is to tell whether the given element appears in the list ; and is
+     * therefore affiliated with this server or not. It is essentially an override of the
+     * ArrayList's contains(Object o) method.
+     * 
+     * @param warningId The ID (as a long) of the warning to look for.
+     * 
+     * @return True if the ID is found in the list, else false.
+     */
+    public boolean isWarningAffiliated(long warningId) {
+        return this.warnings.contains(warningId);
+    }
+
+    ///** TO UNCOMMENT WHEN WARNINGS DONE!
+    // * This method's purpose is to tell whether the given element appears in the list ; and is
+    // * therefore affiliated with this server or not. It is essentially an override of the
+    // * ArrayList's contains(Object o) method.
+    // * 
+    // * @param warning The warning to look for.
+    // * 
+    // * @return True if the warning's ID is found in the list, else false.
+    // */
+    //public boolean isWarningAffiliated(Warning warning) {
+    //    return this.warnings.contains(warning.getId());
+    //}
+    
+    ///**
+    // * This method's purpose is to return the Warning object concerning the given member. To do so,
+    // * it will run through the list of warnings of this server.
+    // * 
+    // * @param memberId The ID as a long of the member that we want to find the warning of.
+    // */
+    //public Warning getMemberWarning(long memberId) {
+    //    //First step is to ensure we have all the server's warnings in memory.
+    //    retrieveWarnings();
+    //
+    //    //Then we iterate through the ones that belongs to this server, looking for one which user
+    //    //ID matches the one of the user.
+    //    for (Warning warning : dynWarnings) {
+    //        //Not so good looking but very clear
+    //        if (warning.getUser() == memberId) {
+    //            return warning;
+    //        }
+    //    }
+    //}
+
+    ///**
+    // * This method's purpose is to return the Warning object concerning the given member. To do so,
+    // * it will run through the list of warnings of this server.
+    // * 
+    // * @param member The member that we want to find the warning of.
+    // */
+    //public Warning getMemberWarning(Member member) {
+    //    //First step is to ensure we have all the server's warnings in memory.
+    //    retrieveWarnings();
+    //
+    //    //Then we iterate through the ones that belongs to this server, looking for one which user
+    //    //ID matches the one of the user.
+    //    for (Warning warning : dynWarnings) {
+    //        //Not so good looking but very clear
+    //        if (warning.getUser() == member.getIdLong()) {
+    //            return warning;
+    //        }
+    //    }
+    //}
+
+    ///**
+    // * This method's purpose is to return the Warning's amount attribute value concerning the given
+    // * member. To do so, it will run through the list of warnings of this server.
+    // * 
+    // * @param memberId The ID as a long of the member that we want to find the amount of warning of.
+    // */
+    //public int getMemberWarningAmount(long memberId) {
+    //    //First step is to ensure we have all the server's warnings in memory.
+    //    retrieveWarnings();
+    //
+    //    //Then we iterate through the ones that belongs to this server, looking for one which user
+    //    //ID matches the one of the user.
+    //    for (Warning warning : dynWarnings) {
+    //        //Not so good looking but very clear
+    //        if (warning.getUser() == memberId) {
+    //            return warning;
+    //        }
+    //    }
+    //}
+
+    ///**
+    // * This method's purpose is to return the Warning's amount attribute value concerning the given
+    // * member. To do so, it will run through the list of warnings of this server.
+    // * 
+    // * @param member The member that we want to find the amount of warning of.
+    // */
+    //public int getMemberWarningAmount(Member member) {
+    //    //First step is to ensure we have all the server's warnings in memory.
+    //    retrieveWarnings();
+    //
+    //    //Then we iterate through the ones that belongs to this server, looking for one which user
+    //    //ID matches the one of the user.
+    //    for (Warning warning : dynWarnings) {
+    //        //Not so good looking but very clear
+    //        if (warning.getUser() == member.getIdLong()) {
+    //            return warning;
+    //        }
+    //    }
+    //}
+
+    ///**
+    // * This method will add a warning to the given member. It'll check that the member at the
+    // * origin of the request is allowed to de so.
+    // * If it is the case, then it will iterate through the server's warning list, to see whether
+    // * the member already has one for him or if we need to create a new object.
+    // * 
+    // * @param originMember The member at the origin of the change. If it is the bot itself, then
+    // *                     this member should be : this.JDAServer.getSelfMember().
+    // * @param memberId The ID in a long shape of the member to warn.
+    // * 
+    // * @throws PermissionException When the member who is at the origin of the call doesn't have
+    // *                             the adequate permissions.
+    // */
+    //public void warnMember(Member originMember, long memberId) throws PermissionException {
+    //    if (!originMember.hasPermission(Permission.BAN_MEMBERS)) {
+    //        throw new PermissionException(Main.english.memberBanMembersPermissionLack);
+    //    }
+    //
+    //    Warning warning = findWarning(memberId);
+    //
+    //    if (warning == null) {
+    //        warning = new Warning(this.ID, memberId); //!\ The constructor sets the amoung at 0!
+    //    }
+    //
+    //    warning.incrementAmount();
+    //}
+
+    ///**
+    // * This method will add a warning to the given member. It'll check that the member at the
+    // * origin of the request is allowed to de so.
+    // * If it is the case, then it will iterate through the server's warning list, to see whether
+    // * the member already has one for him or if we need to create a new object.
+    // * 
+    // * @param originMember The member at the origin of the change. If it is the bot itself, then
+    // *                     this member should be : this.JDAServer.getSelfMember().
+    // * @param member The member to warn.
+    // * 
+    // * @throws PermissionException When the member who is at the origin of the call doesn't have
+    // *                             the adequate permissions.
+    // */
+    //public void warnMember(Member originMember, Member member) throws PermissionException {
+    //    if (!originMember.hasPermission(Permission.BAN_MEMBERS)) {
+    //      throw new PermissionException(Main.english.memberBanMembersPermissionLack);
+    //    }
+    //
+    //    Warning warning = findWarning(member.getIdLong());
+    //
+    //    if (warning == null) {
+    //        warning = new Warning(this.ID, member.getIdLong()); //!\ The constructor sets the amoung at 0!
+    //    }
+    //
+    //    warning.incrementAmount();
+    //}
+
+    ///**
+    // * This method will remove a warning to the specified member. It'll check that the member at
+    // * the origin if the request has adequate permissions.
+    // * If it is the case, it will then look for the member's warning in the list, throw a minor
+    // * RuntimeException if it isn't found, or decrease the amount attribute of the warning.
+    // * 
+    // * @param originMember The member at the origin of the change. If it is the bot itself, then
+    // *                     this member should be : this.JDAServer.getSelfMember().
+    // * @param memberId The ID in a long shape of the member to unwarn.
+    // * 
+    // * @throws PermissionException When the member who is at the origin of the call doesn't have
+    // *                             the adequate permissions.
+    // * @throws RuntimeException When the member specified has no warnings.
+    // */
+    //public void reduceMemberWarnings(Member originMember, long memberId) throws PermissionException, RuntimeException {
+    //    if (!originMember.hasPermission(Permission.MODERATE_MEMBERS)) {
+    //        throw new PermissionException(Main.english.memberModerateMembersPermissionLack);
+    //    }
+    //
+    //    Warning warning = findWarning(memberId);
+    //
+    //    if (warning == null) {
+    //        throw new RuntimeException("The specified user had no warning."); //Not an output message
+    //    }
+    //
+    //    warning.decrementAmount();
+    //}
+
+    ///**
+    // * This method will remove a warning to the specified member. It'll check that the member at
+    // * the origin if the request has adequate permissions.
+    // * If it is the case, it will then look for the member's warning in the list, throw a minor
+    // * RuntimeException if it isn't found, or decrease the amount attribute of the warning.
+    // * 
+    // * @param originMember The member at the origin of the change. If it is the bot itself, then
+    // *                     this member should be : this.JDAServer.getSelfMember().
+    // * @param member The member to unwarn.
+    // * 
+    // * @throws PermissionException When the member who is at the origin of the call doesn't have
+    // *                             the adequate permissions.
+    // * @throws RuntimeException When the member specified has no warnings.
+    // */
+    //public void reduceMemberWarnings(Member originMember, Member member) throws PermissionException, RuntimeException {
+    //    if (!originMember.hasPermission(Permission.MODERATE_MEMBERS)) {
+    //        throw new PermissionException(Main.english.memberModerateMembersPermissionLack);
+    //    }
+    //
+    //    Warning warning = findWarning(member.getIdLong());
+    //
+    //    if (warning == null) {
+    //        throw new RuntimeException("The specified user had no warning."); //Not an output message
+    //    }
+    //
+    //    warning.decrementAmount();
+    //}
+
     /* UTILITARY METHODS */
 
     /**
@@ -783,6 +1063,76 @@ public class Server implements ApiResource { //Could make it extend JDA Guild ob
         //2. For each of them, check the amount, to see if it is higher than allowed
         //3. Ban the members with too much warnings and add them to the banned list
     }
+
+    /**
+     * This method's purpose is to create a Warning object for every item of the warnings list.
+     * Thanks to it, these will be stored in memory, and rapidly accessible for further actions.
+     * 
+     * @throws RuntimeException When there is a synchronization problem between the memory and the
+     *                          dynamic list of Warning objects.
+     */
+    private void retrieveWarnings() {
+
+        //1. Prepare the request to the API by creating the HTTP GET request specifying all the
+        //   warings in the list.
+        //   -> We'll need to check if we don't already have some in the memory. If we do, we'll
+        //      need to send them at the top of the cyclic list before moving on to the next step.
+        //if (this.warnings.size() < this.dynWarnings.size()) {
+            //THIS CASE IS A MAJOR ERROR !! IT SHOULD NOT BE REACHED, as it means we have kept in
+            //memory objects that SHOULD have been deleted !!
+
+            //This case is particularly hard to treat because I can hardly know which item(s)
+            //causes the problem.
+            //To solve it, I will search for EVERY SINGLE object of this server's dynWarnings list
+            //in the memory, and delete it if it isn't found in it. But this process is VERY
+            //costful and has to be avoided at any cost!
+
+            //for (Warning warning : dynWarnings) {
+                //if (!Main.warningsIndexes.containsKey(warning.getID())) {
+                    //this.dynWarnings.remove(warning);
+                //}
+            //}
+
+            //throw new RuntimeException("MAJOR EXCEPTION : WARNING OBJECTS THAT SHOULD HAVE BEEN DESTROYED WERE KEPT IN-MEMORY!");
+        //} else if (this.warnings.size() > this.dynWarnings.size()) {
+            //We create a list that will contain the IDs of the Warnings to put in memory
+            ArrayList<Long> warningsToRetrieve = new ArrayList<Long>();
+
+            for (long warningID : warnings) {
+                if (!Main.warningsIndexes.containsKey(warningID)) {
+                    warningsToRetrieve.add(warningID);
+                }
+            }
+
+            //2. Send the request and get the result as a x-tuple JSON array.
+            //3. Parse the result and create all the instances of warning necessary.
+            //4. Put all those instances in the memory list.
+        //}
+    }
+
+    ///**
+    // * This method aims to find the warning concerning the given member in the warning list.
+    // * 
+    // * @param memberId The member to whom we want to get the warning
+    // * 
+    // * @return The warning of this member, or null if it wasn't in the list.
+    // */
+    //@Nullable
+    //private Warning findWarning(long memberId) {
+    //    retrieveWarnings();
+    //
+    //    Warning warning;
+    //
+    //    for (Warning iterationWarning : dynWarnings) {
+    //        if (iterationWarning.getUser() == memberId) {
+    //            warning = iterationWarning;
+    //
+    //            return warning;
+    //        }
+    //    }
+    //
+    //    return warning;
+    //}
 
     @Override
     public JsonObject getJson() {
